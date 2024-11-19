@@ -16,7 +16,24 @@ import javax.microedition.khronos.opengles.GL10
 import android.opengl.GLES20
 import android.opengl.Matrix
 import android.os.SystemClock
+import androidx.activity.compose.setContent
 import androidx.annotation.RequiresApi
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.Button
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.sp
+import androidx.compose.ui.viewinterop.AndroidView
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
@@ -24,11 +41,18 @@ import java.nio.FloatBuffer
 import java.nio.ShortBuffer
 import kotlin.random.Random
 
+private val _death = MutableLiveData(false)
+val death: LiveData<Boolean> get() = _death
 
+private val _deathCounter = MutableLiveData(0)
+val deathCounter: LiveData<Int> get() = _deathCounter
 
 class MainActivity : ComponentActivity() {
     private lateinit var gLView: GLSurfaceView
     private lateinit var sensorManagerModel: SensorManagerModel
+    private val _gameMessage = MutableLiveData<String>("")
+    val gameMessage: LiveData<String> get() = _gameMessage
+
 
 
 
@@ -38,8 +62,20 @@ class MainActivity : ComponentActivity() {
         sensorManagerModel.sensorData.observe(this) { sensorValues ->
             sensorManagerModel.changeSensorData(sensorValues)
         }
-        gLView = MyGLSurfaceView(this)
-        setContentView(gLView)
+
+
+        setContent {
+            Box {
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    overView()
+
+                    AndroidView(
+                        factory = { MyGLSurfaceView(this@MainActivity) }
+                    )
+                }
+            }
+
+        }
 
 
         enableEdgeToEdge()
@@ -66,8 +102,21 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    @Composable
+    fun overView(){
+        val deathState by death.observeAsState()
+        val deathCount by deathCounter.observeAsState()
+//        if (deathState == true) {
+            Row(horizontalArrangement = Arrangement.Center) {
+
+                    Text("$deathCount", color = Color.Black, fontSize = 32.sp)
+            }
+//        }
+    }
+
     class MyGLRenderer : GLSurfaceView.Renderer {
         private lateinit var mSquare: Square2
+        private lateinit var mTriangle: Triangle
         private val vPMatrix = FloatArray(16)
         private val projectionMatrix = FloatArray(16)
         private val projectionMatrix2 = FloatArray(16)
@@ -87,26 +136,31 @@ class MainActivity : ComponentActivity() {
         val timerBlockSpawn = 1000L
         val timerBlockSpawn2 = 600L
         val timerRTBlockSpawn = 2500L
-        var blocksArr = mutableListOf<Square2>()
-        var blocksArrTemp = mutableListOf<Square2>()
-        var rotatingBlocksArr = mutableListOf<Square2>()
+//        var blocksArr = mutableListOf<Square2>()
+        var blocksArr = mutableListOf<Any>()
+        var blocksArrTemp = mutableListOf<Any>()
+        var rotatingBlocksArr = mutableListOf<Any>()
         var timerYes = false
         var timerYes2 = false
         var timerYes3 = false
         var timerYes4 = false
-        var delBlocksArr = mutableListOf<Square2>()
+        var delBlocksArr = mutableListOf<Any>()
         var camX = 0.0
+        var blockCoords = mutableListOf<Double>()
+        var tempDelBlockCoords = mutableListOf<Double>()
 
 
         override fun onSurfaceCreated(unused: GL10, config: EGLConfig) {
             // Set the background frame color
-            GLES20.glClearColor(0.0f, 0.0f, 0.0f, 1.0f)
+            GLES20.glClearColor(1.0f, 1.0f, 1.0f, 1.0f)
             var randX = Random.nextDouble(-5.0,5.0)
             var newBlock = Square2(randX)
             blocksArr.add(newBlock)
+            blockCoords.add(randX)
 //            var randRTX = Random.nextDouble(-5.0,5.0)
 //            var newBlockRT = Square2(randRTX, "pink")
 //            rotatingBlocksArr.add(newBlockRT)
+            //blocksArr.add(Triangle(0.0))
         }
 
         @RequiresApi(35)
@@ -117,15 +171,17 @@ class MainActivity : ComponentActivity() {
 //            val time2 = SystemClock.uptimeMillis()
 
 
-            if (time - lastTime2 >= timerBlockSpawn || timerYes2) {
-                for (i in 0..2) {
-                    var randX = Random.nextDouble(-3.0, 3.0)
-                    var newBlock = Square2(randX)
-                    blocksArrTemp.add(newBlock)
-                    lastTime2 = time
-                    timerYes2 = true
-                }
-            }
+
+//            if (time - lastTime2 >= timerBlockSpawn || timerYes2) {
+//                for (i in 0..2) {
+//                    var randX = Random.nextDouble(-3.0, 3.0)
+//                    var newBlock = Square2(randX)
+//                    blocksArrTemp.add(newBlock)
+//                    lastTime2 = time
+//                    timerYes2 = true
+//                    blockCoords.add(randX)
+//                }
+//            }
             if (time - lastTime3 >= timerBlockSpawn2 || timerYes3) {
                 for (i in 0..2) {
                     var randX = Random.nextDouble(-6.0, 6.0)
@@ -133,6 +189,9 @@ class MainActivity : ComponentActivity() {
                     blocksArrTemp.add(newBlock)
                     lastTime3 = time
                     timerYes3 = true
+                    blockCoords.add(randX)
+
+
                 }
             }
 //            if (time - lastTime5 >= timerRTBlockSpawn) {
@@ -188,33 +247,89 @@ class MainActivity : ComponentActivity() {
 
 
 
-            println(blocksArr.size)
+//            println(blocksArr.size)
             for (block in blocksArr) {
-                if (time - lastTime >= timerBlockSpeed || timerYes) {
-                    println("HHEHEHEE")
-                    block.zVal -= .05
-                    lastTime = time
-                    timerYes = true
+                when (block) {
+                    is Square2 -> {
+                        if (time - lastTime >= timerBlockSpeed || timerYes) {
+                            //println("HHEHEHEE")
+                            block.zVal -= .05
+                            lastTime = time
+                            timerYes = true
+                        }
+
+
+                        if (block.zVal <= 0) {
+                            //println("ZVAL: ${block.zVal}")
+                            delBlocksArr.add(block)
+                            block.xVal?.let { tempDelBlockCoords.add(it) }
+                        }
+
+                        Matrix.setIdentityM(shiftMatrix, 0)
+                        block.xVal?.let {
+                            Matrix.translateM(
+                                shiftMatrix,
+                                0,
+                                it.toFloat(),
+                                0.0f,
+                                -block.zVal.toFloat()
+                            )
+                        }
+                        Matrix.multiplyMM(vPMatrix, 0, projectionMatrix, 0, viewMatrix, 0)
+                        Matrix.multiplyMM(vPMatrix, 0, vPMatrix, 0, shiftMatrix, 0)
+
+                        block.draw(vPMatrix)
+                    }
+                    is Triangle -> {
+                        //println("YEEEE")
+                        Matrix.setIdentityM(shiftMatrix, 0)
+                        Matrix.translateM(shiftMatrix, 0, 0.0f, 0.0f, -0.5f)
+
+                        // Calculate the projection and view transformation
+                        Matrix.multiplyMM(vPMatrix, 0, projectionMatrix, 0, shiftMatrix, 0)
+
+                        // Draw shape
+                        block.draw(vPMatrix)
+                    }
                 }
 
-
-                if (block.zVal <= 0) {
-                    println("ZVAL: ${block.zVal}")
-                    delBlocksArr.add(block)
-                }
-
-                Matrix.setIdentityM(shiftMatrix, 0)
-                block.xVal?.let { Matrix.translateM(shiftMatrix, 0, it.toFloat(), 0.0f, -block.zVal.toFloat()) }
-                Matrix.multiplyMM(vPMatrix, 0, projectionMatrix, 0, viewMatrix, 0)
-                Matrix.multiplyMM(vPMatrix, 0, vPMatrix, 0, shiftMatrix, 0)
-                block.draw(vPMatrix)
             }
+
+            for (block in blocksArr) {
+                when (block) {
+                    is Square2 -> {
+                        if (block.zVal <= 0) {
+                            if (block.xVal != null) {
+                                if (camX >= block.xVal!! - .35 && camX <= block.xVal!! + .35) {
+                                    var rando = Random.nextInt(20)
+                                    println(rando)
+                                    _death.postValue(true)
+                                    _deathCounter.postValue(_deathCounter.value?.plus(1) ?: 1)
+
+
+                                }
+                            }
+                        }
+
+                    }
+                    is Triangle -> {println("Triangle")}
+                }
+            }
+//            for (coord in blockCoords) {
+//                if (camX >= coord - .25 && camX <= coord + .25) {
+//                    println("HIIIII")
+//                }
+//            }
+
+
 
             blocksArr.addAll(blocksArrTemp)
 //
             blocksArrTemp.clear()
 //            if (delBlocksArr.size > 1) {
             blocksArr.removeAll(delBlocksArr)
+            blockCoords.removeAll(tempDelBlockCoords)
+            tempDelBlockCoords.clear()
 //            }
             delBlocksArr.clear()
             timerYes = false
@@ -226,8 +341,8 @@ class MainActivity : ComponentActivity() {
         override fun onSurfaceChanged(unused: GL10, width: Int, height: Int) {
             GLES20.glViewport(0, 0, width, height)
             GLES20.glViewport(0, 0, width, height)
-            println(width)
-            println(height)
+            //println(width)
+            //println(height)
 
             val ratio: Float = width.toFloat() / height.toFloat()
 
@@ -406,6 +521,137 @@ class MainActivity : ComponentActivity() {
 
     }
 
+
+    class Triangle(var xVal: Double?= 0.0, var blockColor: String = "black", var zVal: Double = 2.5) {
+
+        // Set color with red, green, blue and alpha (opacity) values
+
+        private var mProgram: Int = 0
+
+        private val vertexShaderCode =
+            "attribute vec4 vPosition;" +
+                    "void main() {" +
+                    "  gl_Position = vPosition;" +
+                    "}"
+
+        private val fragmentShaderCode =
+            "precision mediump float;" +
+                    "uniform vec4 vColor;" +
+                    "void main() {" +
+                    "  gl_FragColor = vColor;" +
+                    "}"
+
+        // number of coordinates per vertex in this array
+        val COORDS_PER_VERTEX = 3
+        var triangleCoords = floatArrayOf(
+            0.0f, 0.05f, 0.3f,
+            -0.15f, 0.0f, -0.15f,
+            0.15f, 0.0f, -0.15f
+        )
+
+        init {
+
+            val vertexShader: Int = loadShader(GLES20.GL_VERTEX_SHADER, vertexShaderCode)
+            val fragmentShader: Int = loadShader(GLES20.GL_FRAGMENT_SHADER, fragmentShaderCode)
+
+            // create empty OpenGL ES Program
+            mProgram = GLES20.glCreateProgram().also {
+
+                // add the vertex shader to program
+                GLES20.glAttachShader(it, vertexShader)
+
+                // add the fragment shader to program
+                GLES20.glAttachShader(it, fragmentShader)
+
+                // creates OpenGL ES program executables
+                GLES20.glLinkProgram(it)
+            }
+        }
+
+
+
+
+
+
+
+        private var vertexBuffer: FloatBuffer =
+            // (number of coordinate values * 4 bytes per float)
+            ByteBuffer.allocateDirect(triangleCoords.size * 4).run {
+                // use the device hardware's native byte order
+                order(ByteOrder.nativeOrder())
+
+                // create a floating point buffer from the ByteBuffer
+                asFloatBuffer().apply {
+                    // add the coordinates to the FloatBuffer
+                    put(triangleCoords)
+                    // set the buffer to read the first coordinate
+                    position(0)
+                }
+            }
+        fun loadShader(type: Int, shaderCode: String): Int {
+
+            // create a vertex shader type (GLES20.GL_VERTEX_SHADER)
+            // or a fragment shader type (GLES20.GL_FRAGMENT_SHADER)
+            return GLES20.glCreateShader(type).also { shader ->
+
+                // add the source code to the shader and compile it
+                GLES20.glShaderSource(shader, shaderCode)
+                GLES20.glCompileShader(shader)
+            }
+        }
+
+        private var positionHandle: Int = 0
+        private var mColorHandle: Int = 0
+
+        private val vertexCount: Int = triangleCoords.size / COORDS_PER_VERTEX
+        private val vertexStride: Int = COORDS_PER_VERTEX * 4 // 4 bytes per vertex
+
+        fun draw(vPMatrix: FloatArray) {
+            // Add program to OpenGL ES environment
+            GLES20.glUseProgram(mProgram)
+
+            // get handle to vertex shader's vPosition member
+            positionHandle = GLES20.glGetAttribLocation(mProgram, "vPosition").also {
+
+                // Enable a handle to the triangle vertices
+                GLES20.glEnableVertexAttribArray(it)
+
+                // Prepare the triangle coordinate data
+                GLES20.glVertexAttribPointer(
+                    it,
+                    COORDS_PER_VERTEX,
+                    GLES20.GL_FLOAT,
+                    false,
+                    vertexStride,
+                    vertexBuffer
+                )
+
+                // get handle to fragment shader's vColor member
+                mColorHandle = GLES20.glGetUniformLocation(mProgram, "vColor").also { colorHandle ->
+
+                    // Set color for drawing the triangle
+                    var color = floatArrayOf(0.0f, 0.0f, 0.0f, 1.0f)
+                    if (blockColor == "black") {
+                        color = floatArrayOf(0.0f, 0.0f, 0.0f, 1.0f)
+                    }
+                    GLES20.glUniform4fv(colorHandle, 1, color, 0)
+                }
+
+                // Draw the triangle
+                GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, vertexCount)
+//                GLES20.glDrawElements(
+//                    GLES20.GL_TRIANGLES,
+//                    drawOrder.size,
+//                    GLES20.GL_UNSIGNED_SHORT,
+//                    drawListBuffer
+//                )
+
+                // Disable vertex array
+                GLES20.glDisableVertexAttribArray(it)
+            }
+        }
+    }
+
     
 }
 
@@ -437,7 +683,7 @@ class SensorManagerModel(context: Context) : SensorEventListener {
     fun changeSensorData(newSensorData: FloatArray) {
         if (newSensorData.isNotEmpty()) {
             var horizontal = newSensorData[0]
-            println(horizontal)
+            //println(horizontal)
             _horizontalData.postValue(horizontal.toDouble())
         }
     }
