@@ -56,31 +56,44 @@ class MainActivity : ComponentActivity() {
 
 
 
+//    override fun onCreate(savedInstanceState: Bundle?) {
+//        super.onCreate(savedInstanceState)
+//        sensorManagerModel = SensorManagerModel(this)
+//        sensorManagerModel.sensorData.observe(this) { sensorValues ->
+//            sensorManagerModel.changeSensorData(sensorValues)
+//        }
+//
+//
+//        setContent {
+//            Box {
+//                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+//                    overView()
+//
+//                    AndroidView(
+//                        factory = { MyGLSurfaceView(this@MainActivity) }
+//                    )
+//                }
+//            }
+//
+//        }
+//
+//
+//        enableEdgeToEdge()
+//
+//    }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         sensorManagerModel = SensorManagerModel(this)
         sensorManagerModel.sensorData.observe(this) { sensorValues ->
             sensorManagerModel.changeSensorData(sensorValues)
         }
-
-
-        setContent {
-            Box {
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    overView()
-
-                    AndroidView(
-                        factory = { MyGLSurfaceView(this@MainActivity) }
-                    )
-                }
-            }
-
-        }
+        gLView = MyGLSurfaceView(this)
+        setContentView(gLView)
 
 
         enableEdgeToEdge()
 
-    }
+}
 
     class MyGLSurfaceView(context: Context) : GLSurfaceView(context) {
 
@@ -104,14 +117,12 @@ class MainActivity : ComponentActivity() {
 
     @Composable
     fun overView(){
-        val deathState by death.observeAsState()
-        val deathCount by deathCounter.observeAsState()
-//        if (deathState == true) {
-            Row(horizontalArrangement = Arrangement.Center) {
-
-                    Text("$deathCount", color = Color.Black, fontSize = 32.sp)
-            }
-//        }
+//        val deathState by death.observeAsState()
+//        val deathCount by deathCounter.observeAsState()
+//            Row(horizontalArrangement = Arrangement.Center) {
+//
+//                    Text("$deathCount\n\n\n\nHII", color = Color.Black, fontSize = 32.sp)
+//            }
     }
 
     class MyGLRenderer : GLSurfaceView.Renderer {
@@ -157,14 +168,36 @@ class MainActivity : ComponentActivity() {
             var newBlock = Square2(randX)
             blocksArr.add(newBlock)
             blockCoords.add(randX)
+            blocksArr.add(Square3())
 //            var randRTX = Random.nextDouble(-5.0,5.0)
 //            var newBlockRT = Square2(randRTX, "pink")
 //            rotatingBlocksArr.add(newBlockRT)
             //blocksArr.add(Triangle(0.0))
         }
 
+        fun spawn() {
+//            var randX = Random.nextDouble(-5.0,5.0)
+//            var newBlock = Square2(randX)
+//            blocksArr.add(newBlock)
+//            blockCoords.add(randX)
+//            blocksArr.add(Square3())
+            var randR = Random.nextFloat()
+            var randG = Random.nextFloat()
+            var randB = Random.nextFloat()
+            GLES20.glClearColor(randR, randG, randB, 1.0f)
+        }
         @RequiresApi(35)
         override fun onDrawFrame(unused: GL10?) {
+            if (_death.value == true) {
+//                blocksArr.clear()
+//                blocksArrTemp.clear()
+//                blockCoords.clear()
+//                tempDelBlockCoords.clear()
+//                lastTime = SystemClock.uptimeMillis()
+//                lastTime3 = SystemClock.uptimeMillis()
+                spawn()
+                _death.postValue(false)
+            }
             GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT)
             Matrix.setLookAtM(viewMatrix, 0, camX.toFloat(), 0f, 0.5f, camX.toFloat(), 0f, 0f, 0f, 1f, 0f)
             val time = SystemClock.uptimeMillis()
@@ -172,24 +205,25 @@ class MainActivity : ComponentActivity() {
 
 
 
-//            if (time - lastTime2 >= timerBlockSpawn || timerYes2) {
-//                for (i in 0..2) {
-//                    var randX = Random.nextDouble(-3.0, 3.0)
-//                    var newBlock = Square2(randX)
-//                    blocksArrTemp.add(newBlock)
-//                    lastTime2 = time
-//                    timerYes2 = true
-//                    blockCoords.add(randX)
-//                }
-//            }
+            if (time - lastTime2 >= timerBlockSpawn || timerYes2) {
+                for (i in 0..2) {
+                    var randX = Random.nextDouble(camX-3.0, camX+3.0)
+                    var newBlock = Square2(randX)
+                    blocksArrTemp.add(newBlock)
+                    lastTime2 = time
+                    timerYes2 = true
+                    blockCoords.add(randX)
+                }
+            }
             if (time - lastTime3 >= timerBlockSpawn2 || timerYes3) {
                 for (i in 0..2) {
-                    var randX = Random.nextDouble(-6.0, 6.0)
+                    var randX = Random.nextDouble(camX-6.0, camX+6.0)
                     var newBlock = Square2(randX)
                     blocksArrTemp.add(newBlock)
                     lastTime3 = time
                     timerYes3 = true
                     blockCoords.add(randX)
+
 
 
                 }
@@ -203,9 +237,25 @@ class MainActivity : ComponentActivity() {
 
             if (horizontalData.value!! >= 2) {
                 camX -= .05
+                for (block in blocksArr) {
+                    when (block) {
+                        is Square3 -> {
+                            block.xVal = camX
+                        }
+                    }
+
+
+                }
             }
             if (horizontalData.value!! <= -2) {
                 camX += .05
+                for (block in blocksArr) {
+                    when (block) {
+                        is Square3 -> {
+                            block.xVal = camX
+                        }
+                    }
+                }
             }
             /* ROTATING MATRIX - IN PROGRESS
             if (rotatingBlocksArr.isNotEmpty()) {
@@ -294,17 +344,41 @@ class MainActivity : ComponentActivity() {
                 }
 
             }
+            for (block in blocksArr) {
+                when (block) {
+                    is Square3 -> {
+//                        block.xVal = camX
+                        Matrix.setIdentityM(shiftMatrix, 0)
+                        block.xVal?.let {
+                            Matrix.translateM(
+                                shiftMatrix,
+                                0,
+                                camX.toFloat(),
+                                0.0f,
+                                0.05f
+                            )
+                        }
+                        Matrix.multiplyMM(vPMatrix, 0, projectionMatrix, 0, viewMatrix, 0)
+                        Matrix.multiplyMM(vPMatrix, 0, vPMatrix, 0, shiftMatrix, 0)
+
+                        block.draw(vPMatrix)
+                    }
+                }
+            }
 
             for (block in blocksArr) {
                 when (block) {
                     is Square2 -> {
                         if (block.zVal <= 0) {
                             if (block.xVal != null) {
-                                if (camX >= block.xVal!! - .35 && camX <= block.xVal!! + .35) {
+                                if (camX >= (block.xVal!! - .45) && camX <= (block.xVal!! + .45)) {
                                     var rando = Random.nextInt(20)
                                     println(rando)
                                     _death.postValue(true)
                                     _deathCounter.postValue(_deathCounter.value?.plus(1) ?: 1)
+
+
+
 
 
                                 }
@@ -478,6 +552,169 @@ class MainActivity : ComponentActivity() {
                     }
                     else if (blockColor == "pink") {
                         color = floatArrayOf(1.0f, 0.0f, 0.5f, 1.0f)
+                    }
+
+                    GLES20.glUniform4fv(colorHandle, 1, color, 0)
+                }
+
+                // Draw the triangle
+                GLES20.glDrawElements(
+                    GLES20.GL_TRIANGLES,
+                    drawOrder.size,
+                    GLES20.GL_UNSIGNED_SHORT,
+                    drawListBuffer
+                )
+
+                // Disable vertex array
+                GLES20.glDisableVertexAttribArray(it)
+
+                // get handle to shape's transformation matrix
+                vPMatrixHandle = GLES20.glGetUniformLocation(mProgram, "uMVPMatrix")
+
+                // Pass the projection and view transformation to the shader
+                GLES20.glUniformMatrix4fv(vPMatrixHandle, 1, false, vPMatrix, 0)
+
+                // Draw the triangle
+                //GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, vertexCount)
+
+                // Disable vertex array
+                GLES20.glDisableVertexAttribArray(positionHandle)
+            }
+        }
+        fun loadShader(type: Int, shaderCode: String): Int {
+
+            // create a vertex shader type (GLES20.GL_VERTEX_SHADER)
+            // or a fragment shader type (GLES20.GL_FRAGMENT_SHADER)
+            return GLES20.glCreateShader(type).also { shader ->
+
+                // add the source code to the shader and compile it
+                GLES20.glShaderSource(shader, shaderCode)
+                GLES20.glCompileShader(shader)
+            }
+        }
+
+    }
+
+
+    class Square3(var xVal: Double?= 0.0, var blockColor: String = "black", var zVal: Double = 3.0) {
+
+        private var mProgram: Int = 0
+        private val vertexShaderCode =
+        // This matrix member variable provides a hook to manipulate
+            // the coordinates of the objects that use this vertex shader
+            "uniform mat4 uMVPMatrix;" +
+                    "attribute vec4 vPosition;" +
+                    "void main() {" +
+                    // the matrix must be included as a modifier of gl_Position
+                    // Note that the uMVPMatrix factor *must be first* in order
+                    // for the matrix multiplication product to be correct.
+                    "  gl_Position = uMVPMatrix * vPosition;" +
+                    "}"
+        //            "attribute vec4 vPosition;" +
+//                "void main() {" +
+//                "  gl_Position = vPosition;" +
+//                "}"
+        private var vPMatrixHandle: Int = 0
+        private val fragmentShaderCode =
+            "precision mediump float;" +
+                    "uniform vec4 vColor;" +
+                    "void main() {" +
+                    "  gl_FragColor = vColor;" +
+                    "}"
+
+        private val drawOrder = shortArrayOf(
+            0, 1, 2, 0, 2, 3,  // front side
+            4, 5, 6, 4, 6, 7,  // back side
+            0, 1, 5, 0, 5, 4,  // left side
+            3, 2, 6, 3, 6, 7,  // right side
+            0, 3, 7, 0, 7, 4,  // top side
+            1, 2, 6, 1, 6, 5)  // Bottom face
+        val COORDS_PER_VERTEX = 3
+        var squareCoords = floatArrayOf(
+            -0.15f,  -.2f, 0.0f,     // top left
+            -0.15f, -.55f, 0.0f,     // bottom left
+            0.15f, -.55f, 0.0f,      // bottom right
+            0.15f,  -.2f, 0.0f,      // top right
+
+            -0.15f,  -.2f, -0.25f,
+            -0.15f, -.55f, -0.25f,
+            0.15f, -.55f, -0.25f,
+            0.15f,  -.2f, -0.25f
+        )
+
+        private var positionHandle: Int = 0
+        private var mColorHandle: Int = 0
+
+        private val vertexCount: Int = squareCoords.size / COORDS_PER_VERTEX
+        private val vertexStride: Int = COORDS_PER_VERTEX * 4 // 4 bytes per vertex
+
+        init {
+
+            val vertexShader: Int = loadShader(GLES20.GL_VERTEX_SHADER, vertexShaderCode)
+            val fragmentShader: Int = loadShader(GLES20.GL_FRAGMENT_SHADER, fragmentShaderCode)
+
+            // create empty OpenGL ES Program
+            mProgram = GLES20.glCreateProgram().also {
+
+                // add the vertex shader to program
+                GLES20.glAttachShader(it, vertexShader)
+
+                // add the fragment shader to program
+                GLES20.glAttachShader(it, fragmentShader)
+
+                // creates OpenGL ES program executables
+                GLES20.glLinkProgram(it)
+            }
+        }
+
+        // initialize vertex byte buffer for shape coordinates
+        private val vertexBuffer: FloatBuffer =
+            // (# of coordinate values * 4 bytes per float)
+            ByteBuffer.allocateDirect(squareCoords.size * 4).run {
+                order(ByteOrder.nativeOrder())
+                asFloatBuffer().apply {
+                    put(squareCoords)
+                    position(0)
+                }
+            }
+
+        // initialize byte buffer for the draw list
+        private val drawListBuffer: ShortBuffer =
+            // (# of coordinate values * 2 bytes per short)
+            ByteBuffer.allocateDirect(drawOrder.size * 2).run {
+                order(ByteOrder.nativeOrder())
+                asShortBuffer().apply {
+                    put(drawOrder)
+                    position(0)
+                }
+            }
+        fun draw(vPMatrix: FloatArray) {
+            // Add program to OpenGL ES environment
+            GLES20.glUseProgram(mProgram)
+
+            // get handle to vertex shader's vPosition member
+            positionHandle = GLES20.glGetAttribLocation(mProgram, "vPosition").also {
+
+                // Enable a handle to the triangle vertices
+                GLES20.glEnableVertexAttribArray(it)
+
+                // Prepare the triangle coordinate data
+                GLES20.glVertexAttribPointer(
+                    it,
+                    COORDS_PER_VERTEX,
+                    GLES20.GL_FLOAT,
+                    false,
+                    vertexStride,
+                    vertexBuffer
+                )
+
+                // get handle to fragment shader's vColor member
+                mColorHandle = GLES20.glGetUniformLocation(mProgram, "vColor").also { colorHandle ->
+
+                    // Set color for drawing the triangle
+                    var color = floatArrayOf(0.0f, 0.0f, 0.0f, 1.0f)
+                    if (blockColor == "black") {
+                        color = floatArrayOf(0.0f, 0.0f, 0.0f, 1.0f)
                     }
 
                     GLES20.glUniform4fv(colorHandle, 1, color, 0)
