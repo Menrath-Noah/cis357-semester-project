@@ -24,7 +24,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import edu.gvsu.cis357.play1024.AuthViewModel
 
 @Composable
 fun Login(
