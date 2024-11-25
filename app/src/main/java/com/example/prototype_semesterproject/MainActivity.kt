@@ -55,33 +55,6 @@ class MainActivity : ComponentActivity() {
     val gameMessage: LiveData<String> get() = _gameMessage
 
 
-
-
-//    override fun onCreate(savedInstanceState: Bundle?) {
-//        super.onCreate(savedInstanceState)
-//        sensorManagerModel = SensorManagerModel(this)
-//        sensorManagerModel.sensorData.observe(this) { sensorValues ->
-//            sensorManagerModel.changeSensorData(sensorValues)
-//        }
-//
-//
-//        setContent {
-//            Box {
-//                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-//                    overView()
-//
-//                    AndroidView(
-//                        factory = { MyGLSurfaceView(this@MainActivity) }
-//                    )
-//                }
-//            }
-//
-//        }
-//
-//
-//        enableEdgeToEdge()
-//
-//    }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         sensorManagerModel = SensorManagerModel(this)
@@ -116,15 +89,6 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    @Composable
-    fun overView(){
-//        val deathState by death.observeAsState()
-//        val deathCount by deathCounter.observeAsState()
-//            Row(horizontalArrangement = Arrangement.Center) {
-//
-//                    Text("$deathCount\n\n\n\nHII", color = Color.Black, fontSize = 32.sp)
-//            }
-    }
 
     class MyGLRenderer : GLSurfaceView.Renderer {
         private lateinit var mSquare: Square2
@@ -180,11 +144,6 @@ class MainActivity : ComponentActivity() {
         }
 
         fun spawn() {
-//            var randX = Random.nextDouble(-5.0,5.0)
-//            var newBlock = Square2(randX)
-//            blocksArr.add(newBlock)
-//            blockCoords.add(randX)
-//            blocksArr.add(Square3())
             var randR = Random.nextFloat()
             var randG = Random.nextFloat()
             var randB = Random.nextFloat()
@@ -193,12 +152,6 @@ class MainActivity : ComponentActivity() {
         @RequiresApi(35)
         override fun onDrawFrame(unused: GL10?) {
             if (_death.value == true) {
-//                blocksArr.clear()
-//                blocksArrTemp.clear()
-//                blockCoords.clear()
-//                tempDelBlockCoords.clear()
-//                lastTime = SystemClock.uptimeMillis()
-//                lastTime3 = SystemClock.uptimeMillis()
                 spawn()
                 _death.postValue(false)
             }
@@ -320,10 +273,6 @@ class MainActivity : ComponentActivity() {
             }
              */
 
-
-
-
-//            println(blocksArr.size)
             for (block in blocksArr) {
                 when (block) {
                     is Square2 -> {
@@ -403,10 +352,6 @@ class MainActivity : ComponentActivity() {
                                     _death.postValue(true)
                                     _deathCounter.postValue(_deathCounter.value?.plus(1) ?: 1)
 
-
-
-
-
                                 }
                             }
                         }
@@ -415,22 +360,17 @@ class MainActivity : ComponentActivity() {
                     is Triangle -> {println("Triangle")}
                 }
             }
-//            for (coord in blockCoords) {
-//                if (camX >= coord - .25 && camX <= coord + .25) {
-//                    println("HIIIII")
-//                }
-//            }
 
 
 
             blocksArr.addAll(blocksArrTemp)
-//
+
             blocksArrTemp.clear()
-//            if (delBlocksArr.size > 1) {
+
             blocksArr.removeAll(delBlocksArr)
             blockCoords.removeAll(tempDelBlockCoords)
             tempDelBlockCoords.clear()
-//            }
+
             delBlocksArr.clear()
             timerYes = false
             timerYes2 = false
@@ -441,13 +381,8 @@ class MainActivity : ComponentActivity() {
         override fun onSurfaceChanged(unused: GL10, width: Int, height: Int) {
             GLES20.glViewport(0, 0, width, height)
             GLES20.glViewport(0, 0, width, height)
-            //println(width)
-            //println(height)
 
             val ratio: Float = width.toFloat() / height.toFloat()
-
-            // this projection matrix is applied to object coordinates
-            // in the onDrawFrame() method
 
             Matrix.frustumM(projectionMatrix, 0, -ratio, ratio, -1f, 1f, 0.5f, 35.0f)
 
@@ -470,10 +405,7 @@ class MainActivity : ComponentActivity() {
                     // for the matrix multiplication product to be correct.
                     "  gl_Position = uMVPMatrix * vPosition;" +
                     "}"
-//            "attribute vec4 vPosition;" +
-//                "void main() {" +
-//                "  gl_Position = vPosition;" +
-//                "}"
+
         private var vPMatrixHandle: Int = 0
         private val fragmentShaderCode =
             "precision mediump float;" +
@@ -832,11 +764,6 @@ class MainActivity : ComponentActivity() {
         }
 
 
-
-
-
-
-
         private var vertexBuffer: FloatBuffer =
             // (number of coordinate values * 4 bytes per float)
             ByteBuffer.allocateDirect(triangleCoords.size * 4).run {
@@ -902,20 +829,12 @@ class MainActivity : ComponentActivity() {
 
                 // Draw the triangle
                 GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, vertexCount)
-//                GLES20.glDrawElements(
-//                    GLES20.GL_TRIANGLES,
-//                    drawOrder.size,
-//                    GLES20.GL_UNSIGNED_SHORT,
-//                    drawListBuffer
-//                )
 
                 // Disable vertex array
                 GLES20.glDisableVertexAttribArray(it)
             }
         }
     }
-
-    
 }
 
 val _horizontalData = MutableLiveData(0.0)
@@ -931,7 +850,6 @@ class SensorManagerModel(context: Context) : SensorEventListener {
 
     val _sensorData = MutableLiveData(sensor)
     val sensorData: MutableLiveData<FloatArray> get() = _sensorData
-
 
 
     init {
@@ -953,7 +871,6 @@ class SensorManagerModel(context: Context) : SensorEventListener {
             var horizontal = newSensorData[0]
             var vertical = newSensorData[1]
             var z = newSensorData[2]
-            //println(horizontal)
             _horizontalData.postValue(horizontal.toDouble())
             _verticalData.postValue(vertical.toDouble())
             _zData.postValue(z.toDouble())
