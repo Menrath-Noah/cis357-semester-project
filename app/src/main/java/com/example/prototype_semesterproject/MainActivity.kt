@@ -31,6 +31,7 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.LiveData
@@ -157,8 +158,11 @@ class MainActivity : ComponentActivity() {
         var timerYes4 = false
         var delBlocksArr = mutableListOf<Any>()
         var camX = 0.0
+        var camY = 0.0
         var blockCoords = mutableListOf<Double>()
         var tempDelBlockCoords = mutableListOf<Double>()
+        var playerJump = false
+        var playerJumpDown = false
 
 
         override fun onSurfaceCreated(unused: GL10, config: EGLConfig) {
@@ -255,6 +259,28 @@ class MainActivity : ComponentActivity() {
                             block.xVal = camX
                         }
                     }
+                }
+            }
+            if ((verticalData.value!! > 0.0 && verticalData.value!! <= 2.0) || playerJump) {
+
+                if ((camY > 3.5) || playerJumpDown) {
+                    camY -= .05
+                    playerJumpDown = true
+                    if (camY <= 0.0) {
+                        playerJumpDown = false
+                        playerJump = false
+                    }
+                }
+                else {
+                    camY += .05
+                    for (block in blocksArr) {
+                        when (block) {
+                            is Square3 -> {
+                                block.yVal = camY
+                            }
+                        }
+                    }
+                    playerJump = true
                 }
             }
             /* ROTATING MATRIX - IN PROGRESS
@@ -354,7 +380,7 @@ class MainActivity : ComponentActivity() {
                                 shiftMatrix,
                                 0,
                                 camX.toFloat(),
-                                0.0f,
+                                camY.toFloat(),
                                 0.05f
                             )
                         }
@@ -596,7 +622,7 @@ class MainActivity : ComponentActivity() {
     }
 
 
-    class Square3(var xVal: Double?= 0.0, var blockColor: String = "black", var zVal: Double = 3.0) {
+    class Square3(var xVal: Double?= 0.0, var blockColor: String = "black", var zVal: Double = 3.0, var yVal: Double = 0.0) {
 
         private var mProgram: Int = 0
         private val vertexShaderCode =
@@ -894,6 +920,10 @@ class MainActivity : ComponentActivity() {
 
 val _horizontalData = MutableLiveData(0.0)
 val horizontalData: MutableLiveData<Double> get() = _horizontalData
+val _verticalData = MutableLiveData(0.0)
+val verticalData: MutableLiveData<Double> get() = _verticalData
+val _zData = MutableLiveData(0.0)
+val zData: MutableLiveData<Double> get() = _zData
 class SensorManagerModel(context: Context) : SensorEventListener {
     private var mSensorManager: SensorManager = context.getSystemService(Context.SENSOR_SERVICE) as SensorManager
     private var mAccelerometer: Sensor? = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
@@ -917,11 +947,16 @@ class SensorManagerModel(context: Context) : SensorEventListener {
     override fun onSensorChanged(event: SensorEvent) {
         sensorData.postValue(event.values)
     }
+    
     fun changeSensorData(newSensorData: FloatArray) {
         if (newSensorData.isNotEmpty()) {
             var horizontal = newSensorData[0]
+            var vertical = newSensorData[1]
+            var z = newSensorData[2]
             //println(horizontal)
             _horizontalData.postValue(horizontal.toDouble())
+            _verticalData.postValue(vertical.toDouble())
+            _zData.postValue(z.toDouble())
         }
     }
 
