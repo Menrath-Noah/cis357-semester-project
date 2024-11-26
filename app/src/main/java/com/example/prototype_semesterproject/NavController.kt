@@ -10,6 +10,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.NavHost
 import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
+import com.example.prototype_semesterproject.CreateAccount
+import com.example.prototype_semesterproject.GameScreen
+import com.example.prototype_semesterproject.Login
+
 
 @Composable
 fun NavHostScreen(navController: NavHostController, modifier: Modifier = Modifier) {
@@ -25,7 +30,8 @@ fun NavHostScreen(navController: NavHostController, modifier: Modifier = Modifie
             }
             composable("game/{uid}") {
                 it.arguments?.getString("uid")?.let { uid ->
-                    //inser Gamescreen 
+                    //inser GameScreen
+                    GameScreen()
                 }
             }
 //            composable("settings") {
