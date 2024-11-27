@@ -105,6 +105,7 @@ class MainActivity : ComponentActivity() {
         var lastTime = SystemClock.uptimeMillis()
         var lastTime2 = SystemClock.uptimeMillis()
         var lastTime3 = SystemClock.uptimeMillis()
+        var phaseShiftTimer = SystemClock.uptimeMillis()
         var lastTime4 = SystemClock.uptimeMillis()
         var lastTime5 = SystemClock.uptimeMillis()
         var zVal = 5.0
@@ -112,6 +113,7 @@ class MainActivity : ComponentActivity() {
         val timerBlockSpawn = 1000L
         val timerBlockSpawn2 = 600L
         val timerRTBlockSpawn = 2500L
+        val phaseShiftDuration = 3500L
 //        var blocksArr = mutableListOf<Square2>()
         var blocksArr = mutableListOf<Any>()
         var blocksArrTemp = mutableListOf<Any>()
@@ -127,13 +129,20 @@ class MainActivity : ComponentActivity() {
         var tempDelBlockCoords = mutableListOf<Double>()
         var playerJump = false
         var playerJumpDown = false
+        var phaseShift = false
 
 
         override fun onSurfaceCreated(unused: GL10, config: EGLConfig) {
             // Set the background frame color
             GLES20.glClearColor(1.0f, 1.0f, 1.0f, 1.0f)
+            GLES20.glEnable(GLES20.GL_BLEND)
+            GLES20.glBlendFunc(GLES20.GL_SRC_ALPHA, GLES20.GL_ONE_MINUS_SRC_ALPHA)
+            // https://www.learnopengles.com/android-lesson-five-an-introduction-to-blending/
             var randX = Random.nextDouble(-5.0,5.0)
-            var newBlock = Square2(randX)
+            var randLength = Random.nextDouble(.15,.5)
+            var randHeight = Random.nextDouble(0.2,0.9)
+            var randColor = Random.nextInt(100,255)
+            var newBlock = Square2(randX, lengthVal = randLength, heightVal = randHeight, blockColor = randColor)
             blocksArr.add(newBlock)
             blockCoords.add(randX)
             blocksArr.add(Square3())
@@ -151,6 +160,8 @@ class MainActivity : ComponentActivity() {
         }
         @RequiresApi(35)
         override fun onDrawFrame(unused: GL10?) {
+            var randLength: Double
+            var randWidth: Double
             if (_death.value == true) {
                 spawn()
                 _death.postValue(false)
@@ -165,7 +176,26 @@ class MainActivity : ComponentActivity() {
             if (time - lastTime2 >= timerBlockSpawn || timerYes2) {
                 for (i in 0..2) {
                     var randX = Random.nextDouble(camX-3.0, camX+3.0)
-                    var newBlock = Square2(randX)
+                    var isLengthLong = Random.nextInt(0,100)
+
+                    if (isLengthLong >= 95) {
+                        randLength = Random.nextDouble(.45,.5)
+                    }
+                    else {
+                        randLength = Random.nextDouble(.15,.35)
+                    }
+
+                    var randHeight = Random.nextDouble(0.15,0.9)
+                    var isWidthLong = Random.nextInt(0,100)
+
+                    if (isWidthLong > 100) {
+                        randWidth = Random.nextDouble(.25,.4)
+                    }
+                    else {
+                        randWidth = Random.nextDouble(0.125,0.15)
+                    }
+                    var randColor = Random.nextInt(100,255)
+                    var newBlock = Square2(randX, lengthVal = randLength, heightVal = randHeight, widthVal = randWidth, blockColor = randColor)
                     blocksArrTemp.add(newBlock)
                     lastTime2 = time
                     timerYes2 = true
@@ -175,16 +205,47 @@ class MainActivity : ComponentActivity() {
             if (time - lastTime3 >= timerBlockSpawn2 || timerYes3) {
                 for (i in 0..2) {
                     var randX = Random.nextDouble(camX-6.0, camX+6.0)
-                    var newBlock = Square2(randX)
+                    var isLengthLong = Random.nextInt(0,100)
+                    if (isLengthLong >= 95) {
+                        randLength = Random.nextDouble(.45,.5)
+                    }
+                    else {
+                        randLength = Random.nextDouble(.15,.35)
+                    }
+                    var randHeight = Random.nextDouble(0.15,0.9)
+                    var isWidthLong = Random.nextInt(0,100)
+
+                    if (isWidthLong > 100) {
+                        randWidth = Random.nextDouble(.25,.4)
+                    }
+                    else {
+                        randWidth = Random.nextDouble(0.125,0.15)
+                    }
+                    var randColor = Random.nextInt(100,255)
+                    var newBlock = Square2(randX, lengthVal = randLength, heightVal = randHeight, widthVal = randWidth, blockColor = randColor)
                     blocksArrTemp.add(newBlock)
                     lastTime3 = time
                     timerYes3 = true
                     blockCoords.add(randX)
 
-
-
                 }
             }
+//            if (phaseShiftTimer)
+            if (phaseShift) {
+                if (time - phaseShiftTimer >= phaseShiftDuration || timerYes4) {
+                    phaseShift = false
+                    for (block in blocksArr) {
+                        when (block) {
+                            is Square3 -> {
+                                block.blockColor = "black"
+                                phaseShiftTimer = time
+
+                            }
+                        }
+                    }
+                }
+            }
+
 //            if (time - lastTime5 >= timerRTBlockSpawn) {
 //                var randX = Random.nextDouble(-3.0, 3.0)
 //                var newRTBlock = Square2(randX, "pink")
@@ -200,8 +261,6 @@ class MainActivity : ComponentActivity() {
                             block.xVal = camX
                         }
                     }
-
-
                 }
             }
             if (horizontalData.value!! <= -2) {
@@ -214,12 +273,14 @@ class MainActivity : ComponentActivity() {
                     }
                 }
             }
-            if ((verticalData.value!! > 0.0 && verticalData.value!! <= 2.0) || playerJump) {
+//            if ((verticalData.value!! > 0.0 && verticalData.value!! <= 2.0) || playerJump) {
+            if ((zData.value!! <= -7.5) || playerJump) {
 
                 if ((camY > 3.5) || playerJumpDown) {
                     camY -= .05
                     playerJumpDown = true
                     if (camY <= 0.0) {
+                        camY = 0.0
                         playerJumpDown = false
                         playerJump = false
                     }
@@ -234,6 +295,21 @@ class MainActivity : ComponentActivity() {
                         }
                     }
                     playerJump = true
+                }
+            }
+
+            if ((zData.value!! >= 7.5)) {
+                for (block in blocksArr) {
+                    when (block) {
+                        is Square3 -> {
+                            if (phaseShift == false) {
+                                block.blockColor = "transparent"
+                                phaseShift = true
+                                phaseShiftTimer = SystemClock.uptimeMillis()
+                            }
+                        }
+                    }
+
                 }
             }
             /* ROTATING MATRIX - IN PROGRESS
@@ -333,6 +409,7 @@ class MainActivity : ComponentActivity() {
                                 0.05f
                             )
                         }
+
                         Matrix.multiplyMM(vPMatrix, 0, projectionMatrix, 0, viewMatrix, 0)
                         Matrix.multiplyMM(vPMatrix, 0, vPMatrix, 0, shiftMatrix, 0)
 
@@ -340,18 +417,27 @@ class MainActivity : ComponentActivity() {
                     }
                 }
             }
+//            println(zData.value)
+//            println(verticalData.value)
 
+            val square3 = blocksArr.find { it is Square3 } as Square3
             for (block in blocksArr) {
                 when (block) {
                     is Square2 -> {
-                        if (block.zVal <= 0) {
-                            if (block.xVal != null) {
-                                if (camX >= (block.xVal!! - .45) && camX <= (block.xVal!! + .45)) {
-                                    var rando = Random.nextInt(20)
-                                    println(rando)
-                                    _death.postValue(true)
-                                    _deathCounter.postValue(_deathCounter.value?.plus(1) ?: 1)
+                        if (square3.blockColor != "transparent") {
+                            if (block.zVal <= 0) {
+                                if (block.xVal != null) {
+                                    if (camX >= (block.xVal!! - .45) && camX <= (block.xVal!! + .45)) {
+                                        if (-0.55+camY <= block.heightVal) {
+//                                            var rando = Random.nextInt(20)
+////                                    println(rando)
+                                            _death.postValue(true)
+                                            _deathCounter.postValue(
+                                                _deathCounter.value?.plus(1) ?: 1
+                                            )
+                                        }
 
+                                    }
                                 }
                             }
                         }
@@ -391,7 +477,7 @@ class MainActivity : ComponentActivity() {
     }
 
 
-    class Square2(var xVal: Double?= 0.0, var blockColor: String = "blue", var zVal: Double = 5.0) {
+    class Square2(var xVal: Double?= 0.0, var blockColor: Int = 150, var zVal: Double = 5.0, var lengthVal: Double = 0.25, var heightVal: Double = 0.55, var widthVal: Double = 0.15) {
 
         private var mProgram: Int = 0
         private val vertexShaderCode =
@@ -422,17 +508,40 @@ class MainActivity : ComponentActivity() {
             0, 3, 7, 0, 7, 4,  // top side
             1, 2, 6, 1, 6, 5)  // Bottom face
         val COORDS_PER_VERTEX = 3
+//        var squareCoords = floatArrayOf(
+//            -0.25f,  .55f, 0.0f,     // top left
+//            -0.25f, -.55f, 0.0f,     // bottom left
+//            0.25f, -.55f, 0.0f,      // bottom right
+//            0.25f,  .55f, 0.0f,      // top right
+//
+//            -0.25f,  .55f, -0.25f,
+//            -0.25f, -.55f, -0.25f,
+//            0.25f, -.55f, -0.25f,
+//            0.25f,  .55f, -0.25f
+//        )
         var squareCoords = floatArrayOf(
-            -0.25f,  .55f, 0.0f,     // top left
-            -0.25f, -.55f, 0.0f,     // bottom left
-            0.25f, -.55f, 0.0f,      // bottom right
-            0.25f,  .55f, 0.0f,      // top right
+            (-lengthVal).toFloat(), heightVal.toFloat(), 0.0f,     // top left
+            (-lengthVal).toFloat(), -.55f, 0.0f,                   // bottom left
+            lengthVal.toFloat(), -.55f, 0.0f,                      // bottom right
+            lengthVal.toFloat(), heightVal.toFloat(), 0.0f,        // top right
 
-            -0.25f,  .55f, -0.25f,
-            -0.25f, -.55f, -0.25f,
-            0.25f, -.55f, -0.25f,
-            0.25f,  .55f, -0.25f
+            (-lengthVal).toFloat(), heightVal.toFloat(), widthVal.toFloat(),
+            (-lengthVal).toFloat(), -.55f, widthVal.toFloat(),
+            lengthVal.toFloat(), -.55f, widthVal.toFloat(),
+            lengthVal.toFloat(), heightVal.toFloat(), widthVal.toFloat()
         )
+//        var squareCoords = floatArrayOf(
+//            (-lengthVal).toFloat(), .55f, 0.0f,     // top left
+//            (-lengthVal).toFloat(), -.55f, 0.0f,                   // bottom left
+//            lengthVal.toFloat(), -.55f, 0.0f,                      // bottom right
+//            lengthVal.toFloat(), .55f, 0.0f,        // top right
+//
+//            (-lengthVal).toFloat(), .55f, -0.25f,
+//            (-lengthVal).toFloat(), -.55f, -0.25f,
+//            lengthVal.toFloat(), -.55f, -0.25f,
+//            lengthVal.toFloat(), .55f, -0.25f
+//        )
+        //heightVal .2 to .9
 
         private var positionHandle: Int = 0
         private var mColorHandle: Int = 0
@@ -499,18 +608,13 @@ class MainActivity : ComponentActivity() {
                     vertexStride,
                     vertexBuffer
                 )
+                var blueShade = blockColor.toFloat() / 255f
 
                 // get handle to fragment shader's vColor member
                 mColorHandle = GLES20.glGetUniformLocation(mProgram, "vColor").also { colorHandle ->
 
                     // Set color for drawing the triangle
-                    var color = floatArrayOf(0.0f, 0.0f, 1.0f, 1.0f)
-                    if (blockColor == "blue") {
-                        color = floatArrayOf(0.0f, 0.0f, 1.0f, 1.0f)
-                    }
-                    else if (blockColor == "pink") {
-                        color = floatArrayOf(1.0f, 0.0f, 0.5f, 1.0f)
-                    }
+                    var color = floatArrayOf(0.0f, 0.0f, .8f, 1.0f)
 
                     GLES20.glUniform4fv(colorHandle, 1, color, 0)
                 }
@@ -557,6 +661,7 @@ class MainActivity : ComponentActivity() {
     class Square3(var xVal: Double?= 0.0, var blockColor: String = "black", var zVal: Double = 3.0, var yVal: Double = 0.0) {
 
         private var mProgram: Int = 0
+        var color = floatArrayOf(0.0f, 0.0f, 0.0f, 1.0f)
         private val vertexShaderCode =
         // This matrix member variable provides a hook to manipulate
             // the coordinates of the objects that use this vertex shader
@@ -670,9 +775,13 @@ class MainActivity : ComponentActivity() {
                 mColorHandle = GLES20.glGetUniformLocation(mProgram, "vColor").also { colorHandle ->
 
                     // Set color for drawing the triangle
-                    var color = floatArrayOf(0.0f, 0.0f, 0.0f, 1.0f)
+
+//                    color = floatArrayOf(0f, 0f, 0f, 1f)
                     if (blockColor == "black") {
-                        color = floatArrayOf(0.0f, 0.0f, 0.0f, 1.0f)
+                        color = floatArrayOf(0f, 0f, 0f, 1f)
+                    }
+                    else if (blockColor == "transparent") {
+                        color = floatArrayOf(0f, 0f, 0f, .15f)
                     }
 
                     GLES20.glUniform4fv(colorHandle, 1, color, 0)
@@ -843,6 +952,8 @@ val _verticalData = MutableLiveData(0.0)
 val verticalData: MutableLiveData<Double> get() = _verticalData
 val _zData = MutableLiveData(0.0)
 val zData: MutableLiveData<Double> get() = _zData
+val _testData = MutableLiveData(0.0)
+val testData: MutableLiveData<Double> get() = _testData
 class SensorManagerModel(context: Context) : SensorEventListener {
     private var mSensorManager: SensorManager = context.getSystemService(Context.SENSOR_SERVICE) as SensorManager
     private var mAccelerometer: Sensor? = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
@@ -854,6 +965,7 @@ class SensorManagerModel(context: Context) : SensorEventListener {
 
     init {
         mAccelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
+
 
         if (mAccelerometer != null) {
             mSensorManager.registerListener(this, mAccelerometer, SensorManager.SENSOR_DELAY_NORMAL)
@@ -871,9 +983,11 @@ class SensorManagerModel(context: Context) : SensorEventListener {
             var horizontal = newSensorData[0]
             var vertical = newSensorData[1]
             var z = newSensorData[2]
+            var test = newSensorData[1]
             _horizontalData.postValue(horizontal.toDouble())
             _verticalData.postValue(vertical.toDouble())
             _zData.postValue(z.toDouble())
+            _testData.postValue(test.toDouble())
         }
     }
 
