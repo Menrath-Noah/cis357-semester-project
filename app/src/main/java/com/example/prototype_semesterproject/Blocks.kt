@@ -220,8 +220,8 @@ class Square3(var xVal: Double?= 0.0, var blockColor: String = "black", var zVal
     private var positionHandle: Int = 0
     private var mColorHandle: Int = 0
 
-    private val vertexCount: Int = squareCoords.size / COORDS_PER_VERTEX
-    private val vertexStride: Int = COORDS_PER_VERTEX * 4 // 4 bytes per vertex
+     val vertexCount: Int = squareCoords.size / COORDS_PER_VERTEX
+     val vertexStride: Int = COORDS_PER_VERTEX * 4 // 4 bytes per vertex
 
     init {
 
