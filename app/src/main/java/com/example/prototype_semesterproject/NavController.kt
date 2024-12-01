@@ -8,8 +8,10 @@ import androidx.navigation.compose.composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.LiveData
 import androidx.navigation.compose.NavHost
 import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
 
 @Composable
 fun NavHostScreen(navController: NavHostController, modifier: Modifier = Modifier) {
@@ -51,5 +53,20 @@ fun NavHostScreen(navController: NavHostController, modifier: Modifier = Modifie
         }
     }
 }
+@Composable
+fun AppNavHost(
+    gameMessage: LiveData<String>,
+    sensorManagerModel: SensorManagerModel
+) {
+    val navController = rememberNavController()
 
+    NavHost(navController = navController, startDestination = "game_config") {
+        composable("game_config") {
+            GameConfig(
+                gameMessage = gameMessage,
+                sensorManagerModel = sensorManagerModel
+            )
+        }
+    }
+}
 
