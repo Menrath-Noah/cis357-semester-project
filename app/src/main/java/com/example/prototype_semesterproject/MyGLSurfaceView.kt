@@ -3,12 +3,9 @@ package com.example.prototype_semesterproject
 import android.content.Context
 import android.opengl.GLSurfaceView
 
-
-
 class MyGLSurfaceView(context: Context) : GLSurfaceView(context) {
 
     private val renderer: MyGLRenderer
-
 
     init {
 
