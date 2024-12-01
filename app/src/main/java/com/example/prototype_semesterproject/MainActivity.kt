@@ -41,6 +41,8 @@ import java.nio.ByteOrder
 import java.nio.FloatBuffer
 import java.nio.ShortBuffer
 import kotlin.random.Random
+import com.google.firebase.FirebaseApp
+import com.google.firebase.auth.FirebaseAuth
 
 //private val _death = MutableLiveData(false)
 //val death: LiveData<Boolean> get() = _death
@@ -55,9 +57,10 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
+        // Initialize Firebase
+        FirebaseApp.initializeApp(this)
         sensorManagerModel = SensorManagerModel(this)
-
+        val auth = FirebaseAuth.getInstance()
         setContent {
             AppNavHost(
                 gameMessage = gameMessage,

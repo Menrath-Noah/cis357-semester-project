@@ -6,6 +6,210 @@ import java.nio.ByteOrder
 import java.nio.FloatBuffer
 import java.nio.ShortBuffer
 
+/*
+internal open class BaseShape(
+    var xVal: Double? = 0.0,
+    var blockColor: String = "black",
+    var zVal: Double = 2.5,
+    open var yVal: Double = 0.0
+)
+
+{
+    internal var mProgram: Int = 0
+
+    internal val vertexShaderCode = """
+        attribute vec4 vPosition;
+        void main() {
+            gl_Position = uMVPMatrix * vPosition;
+        }
+    """.trimIndent()
+
+    internal val fragmentShaderCode = """
+        precision mediump float;
+        uniform vec4 vColor;
+        void main() {
+            gl_FragColor = vColor;
+        }
+    """.trimIndent()
+
+    internal val drawOrder = shortArrayOf(
+        0, 1, 2, 0, 2, 3,
+        4, 5, 6, 4, 6, 7,
+        0, 1, 5, 0, 5, 4,
+        3, 2, 6, 3, 6, 7,
+        0, 3, 7, 0, 7, 4,
+        1, 2, 6, 1, 6, 5
+    )
+
+    internal val COORDS_PER_VERTEX = 3
+    open val squareCoords: FloatArray = floatArrayOf(
+        0.0f, 0.05f, 0.3f,
+        -0.15f, 0.0f, -0.15f,
+        0.15f, 0.0f, -0.15f
+    )
+
+     val vertexCount: Int = squareCoords.size / COORDS_PER_VERTEX
+     val vertexStride: Int = COORDS_PER_VERTEX * 4 // 4 bytes per vertex
+     val vertexBuffer: FloatBuffer =
+        // (# of coordinate values * 4 bytes per float)
+        ByteBuffer.allocateDirect(squareCoords.size * 4).run {
+            order(ByteOrder.nativeOrder())
+            asFloatBuffer().apply {
+                put(squareCoords)
+                position(0)
+            }
+        }
+     val drawListBuffer: ShortBuffer =
+        // (# of coordinate values * 2 bytes per short)
+        ByteBuffer.allocateDirect(drawOrder.size * 2).run {
+            order(ByteOrder.nativeOrder())
+            asShortBuffer().apply {
+                put(drawOrder)
+                position(0)
+            }
+        }
+
+    var positionHandle: Int = 0
+    var mColorHandle: Int = 0
+
+    internal fun loadShader(type: Int, shaderCode: String): Int {
+        return GLES20.glCreateShader(type).also { shader ->
+            GLES20.glShaderSource(shader, shaderCode)
+            GLES20.glCompileShader(shader)
+        }
+    }
+
+
+ }
+
+internal class Square(override var yVal: Double = 0.0) : BaseShape()
+{
+    override val squareCoords = floatArrayOf(
+        -0.25f, .55f, 0.0f,
+        -0.25f, -.55f, 0.0f,
+        0.25f, -.55f, 0.0f,
+        0.25f, .55f, 0.0f,
+        -0.25f, .55f, -0.25f,
+        -0.25f, -.55f, -0.25f,
+        0.25f, -.55f, -0.25f,
+        0.25f, .55f, -0.25f
+    )
+
+    internal fun draw(vPMatrix: FloatArray) {
+        GLES20.glUseProgram(mProgram)
+
+        positionHandle = GLES20.glGetAttribLocation(mProgram, "vPosition").also { pos ->
+            GLES20.glEnableVertexAttribArray(pos)
+            GLES20.glVertexAttribPointer(
+                pos,
+                COORDS_PER_VERTEX,
+                GLES20.GL_FLOAT,
+                false,
+                vertexStride,
+                vertexBuffer
+            )
+        }
+
+        mColorHandle = GLES20.glGetUniformLocation(mProgram, "vColor").also { color ->
+            val colorArray = if (blockColor == "blue") floatArrayOf(0f, 0f, 1f, 1f) else floatArrayOf(0f, 0f, 1f, 1f)
+            GLES20.glUniform4fv(mColorHandle, 1, colorArray, 0)
+        }
+
+        GLES20.glDrawElements(
+            GLES20.GL_TRIANGLES,
+            drawOrder.size,
+            GLES20.GL_UNSIGNED_SHORT,
+            drawListBuffer
+        )
+
+        GLES20.glDisableVertexAttribArray(positionHandle)
+
+        val vPMatrixHandle = GLES20.glGetUniformLocation(mProgram, "uMVPMatrix")
+        GLES20.glUniformMatrix4fv(vPMatrixHandle, 1, false, vPMatrix, 0)
+    }
+}
+
+internal class Square3 : BaseShape()
+{
+    override val squareCoords = floatArrayOf(
+        -0.15f, -.2f, 0.0f,
+        -0.15f, -.55f, 0.0f,
+        0.15f, -.55f, 0.0f,
+        0.15f, -.2f, 0.0f,
+        -0.15f, -.2f, -0.25f,
+        -0.15f, -.55f, -0.25f,
+        0.15f, -.55f, -0.25f,
+        0.15f, -.2f, -0.25f
+    )
+
+    internal fun draw(vPMatrix: FloatArray) {
+        GLES20.glUseProgram(mProgram)
+
+        positionHandle = GLES20.glGetAttribLocation(mProgram, "vPosition").also { pos ->
+            GLES20.glEnableVertexAttribArray(pos)
+            GLES20.glVertexAttribPointer(
+                pos,
+                COORDS_PER_VERTEX,
+                GLES20.GL_FLOAT,
+                false,
+                vertexStride,
+                vertexBuffer
+            )
+        }
+
+        mColorHandle = GLES20.glGetUniformLocation(mProgram, "vColor").also { color ->
+            val colorArray = if (blockColor == "blue") floatArrayOf(0f, 0f, 1f, 1f) else floatArrayOf(0f, 0f, 1f, 1f)
+            GLES20.glUniform4fv(mColorHandle, 1, colorArray, 0)
+        }
+
+        GLES20.glDrawElements(
+            GLES20.GL_TRIANGLES,
+            drawOrder.size,
+            GLES20.GL_UNSIGNED_SHORT,
+            drawListBuffer
+        )
+
+        GLES20.glDisableVertexAttribArray(positionHandle)
+
+        val vPMatrixHandle = GLES20.glGetUniformLocation(mProgram, "uMVPMatrix")
+        GLES20.glUniformMatrix4fv(vPMatrixHandle, 1, false, vPMatrix, 0)
+    }
+}
+
+internal class Triangle : BaseShape()
+{
+    override val squareCoords = floatArrayOf(
+        0.0f, 0.05f, 0.3f,
+        -0.15f, 0.0f, -0.15f,
+        0.15f, 0.0f, -0.15f
+    )
+
+    internal fun draw(vPMatrix: FloatArray) {
+        GLES20.glUseProgram(mProgram)
+
+        positionHandle = GLES20.glGetAttribLocation(mProgram, "vPosition").also { pos ->
+            GLES20.glEnableVertexAttribArray(pos)
+            GLES20.glVertexAttribPointer(
+                pos,
+                COORDS_PER_VERTEX,
+                GLES20.GL_FLOAT,
+                false,
+                vertexStride,
+                vertexBuffer
+            )
+        }
+
+        mColorHandle = GLES20.glGetUniformLocation(mProgram, "vColor").also { color ->
+            val colorArray = if (blockColor == "black") floatArrayOf(0f, 0f, 0f, 1f) else floatArrayOf(0f, 0f, 0f, 1f)
+            GLES20.glUniform4fv(mColorHandle, 1, colorArray, 0)
+        }
+
+        GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, vertexCount)
+
+        GLES20.glDisableVertexAttribArray(positionHandle)
+    }
+}
+*/
 
 
 class Square2(var xVal: Double?= 0.0, var blockColor: String = "blue", var zVal: Double = 5.0) {

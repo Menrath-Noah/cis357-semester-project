@@ -1,16 +1,11 @@
 package com.example.prototype_semesterproject
 
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
-import androidx.navigation.compose.composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import androidx.lifecycle.LiveData
-import androidx.navigation.compose.NavHost
 import androidx.navigation.NavHostController
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 
 @Composable
@@ -22,7 +17,7 @@ fun AppNavHost(
 ) {
     NavHost(
         navController = navController,
-        startDestination = "game_config/{uid}",
+        startDestination = "login",//"game_config/{uid}",
         modifier = modifier
     ) {
         composable("login") {
@@ -36,7 +31,9 @@ fun AppNavHost(
         }
 
         composable("signup") {
-            CreateAccount(
+            createAccount(name = "",
+                email = "",
+                password = "",
                 navController = navController
             )
         }

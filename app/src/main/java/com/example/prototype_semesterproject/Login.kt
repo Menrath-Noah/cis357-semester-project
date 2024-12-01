@@ -19,11 +19,17 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.text.input.VisualTransformation
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
+import com.google.firebase.Firebase
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.userProfileChangeRequest
+import com.google.firebase.firestore.firestore
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 
 @Composable
 fun Login(
@@ -31,7 +37,8 @@ fun Login(
     navController: NavController,
     vm: AuthViewModel = AuthViewModel(),
     onLoginSuccess: (String) -> Unit
-) {
+)
+{
     var username by remember { mutableStateOf("me@test.com") }
     var password by remember { mutableStateOf("1234567") }
     val authSuccess = vm.authSuccess.observeAsState()
@@ -103,6 +110,26 @@ fun Login(
     }
 }
 @Composable
+fun createAccount(name: String,
+                  email: String,
+                  password: String,
+                  vm: AuthViewModel = AuthViewModel(),
+                  navController: NavController)
+{ // creates user account
+    val db = Firebase.firestore
+    val auth = FirebaseAuth.getInstance()
+    vm.viewModelScope.launch(Dispatchers.IO) {
+        auth.createUserWithEmailAndPassword(email, password).await()
+        var changeName = userProfileChangeRequest { displayName = name }
+        auth.currentUser?.updateProfile(changeName)?.await()
+        var uid = auth.currentUser?.uid
+        //var playerStats = gameStat(totalSuccessfulSwipes,winConditionMet,rowLen, maxScore)
+        db.collection("players").document("$uid").set(hashMapOf<String,Int>())
+    }
+    println(auth.currentUser?.displayName)
+    navController.navigate(route = "login")
+}
+/*
 fun CreateAccount(
     modifier: Modifier = Modifier,
     navController: NavController,
@@ -183,3 +210,4 @@ fun CreateAccount(
         }
     }
 }
+*/
