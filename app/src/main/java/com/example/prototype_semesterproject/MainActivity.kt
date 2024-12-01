@@ -16,30 +16,9 @@ import javax.microedition.khronos.opengles.GL10
 import android.opengl.GLES20
 import android.opengl.Matrix
 import android.os.SystemClock
-import androidx.activity.compose.setContent
 import androidx.annotation.RequiresApi
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.Button
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.key.KeyEvent
-import androidx.compose.ui.unit.sp
-import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import java.nio.ByteBuffer
-import java.nio.ByteOrder
-import java.nio.FloatBuffer
-import java.nio.ShortBuffer
 import kotlin.random.Random
 
 private val _death = MutableLiveData(false)
@@ -236,6 +215,16 @@ class MainActivity : ComponentActivity() {
                     playerJump = true
                 }
             }
+
+//            if (zData2.value!! >= 7.5 || zData2.value!! <= -7.5) { // Fast pushing motion after a few numbers will be positive, Fast pulling motion after a few numbers will be negative
+//                println(zData2.value)
+//            }
+            if (verticalData2.value!! >= 5.5 || verticalData2.value!! <= -5.5) {
+                println(verticalData2.value)
+            }
+
+
+
             /* ROTATING MATRIX - IN PROGRESS
             if (rotatingBlocksArr.isNotEmpty()) {
                 for (rtBlock in rotatingBlocksArr) {
@@ -348,7 +337,7 @@ class MainActivity : ComponentActivity() {
                             if (block.xVal != null) {
                                 if (camX >= (block.xVal!! - .45) && camX <= (block.xVal!! + .45)) {
                                     var rando = Random.nextInt(20)
-                                    println(rando)
+//                                    println(rando)
                                     _death.postValue(true)
                                     _deathCounter.postValue(_deathCounter.value?.plus(1) ?: 1)
 
@@ -400,30 +389,53 @@ val verticalData: MutableLiveData<Double> get() = _verticalData
 val _zData = MutableLiveData(0.0)
 val zData: MutableLiveData<Double> get() = _zData
 
+val _horizontalData2 = MutableLiveData(0.0)
+val horizontalData2: MutableLiveData<Double> get() = _horizontalData2
+val _verticalData2 = MutableLiveData(0.0)
+val verticalData2: MutableLiveData<Double> get() = _verticalData2
+val _zData2 = MutableLiveData(0.0)
+val zData2: MutableLiveData<Double> get() = _zData2
+
 class SensorManagerModel(context: Context) : SensorEventListener {
     private var mSensorManager: SensorManager = context.getSystemService(Context.SENSOR_SERVICE) as SensorManager
     private var mAccelerometer: Sensor? = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
+    private var mLinearAcceleration: Sensor? = mSensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION)
     var sensor: FloatArray = floatArrayOf()
+    var sensor2: FloatArray = floatArrayOf()
 
     val _sensorData = MutableLiveData(sensor)
     val sensorData: MutableLiveData<FloatArray> get() = _sensorData
 
+    val _sensorData2 = MutableLiveData(sensor2)
+    val sensorData2: MutableLiveData<FloatArray> get() = _sensorData2
+
 
     init {
         mAccelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
+        mLinearAcceleration = mSensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION)
 
         if (mAccelerometer != null) {
             mSensorManager.registerListener(this, mAccelerometer, SensorManager.SENSOR_DELAY_NORMAL)
         }
+        if (mLinearAcceleration != null) {
+            mSensorManager.registerListener(this, mLinearAcceleration, SensorManager.SENSOR_DELAY_NORMAL)
+        }
+
     }
 
     override fun onAccuracyChanged(sensor: Sensor, accuracy: Int) {}
 
     override fun onSensorChanged(event: SensorEvent) {
-        sensorData.postValue(event.values)
+        if (event.sensor.type == Sensor.TYPE_ACCELEROMETER) {
+            sensorData.postValue(event.values)
+        }
+        if (event.sensor.type == Sensor.TYPE_LINEAR_ACCELERATION) {
+            sensorData2.postValue(event.values)
+        }
+        changeSensorData(event.values, event.sensor.type)
     }
     
-    fun changeSensorData(newSensorData: FloatArray) {
+    fun changeSensorData(newSensorData: FloatArray, sensor_type: Int?=Sensor.TYPE_ACCELEROMETER) {
         if (newSensorData.isNotEmpty()) {
             var horizontal = newSensorData[0]
             var vertical = newSensorData[1]
@@ -431,6 +443,14 @@ class SensorManagerModel(context: Context) : SensorEventListener {
             _horizontalData.postValue(horizontal.toDouble())
             _verticalData.postValue(vertical.toDouble())
             _zData.postValue(z.toDouble())
+        }
+        if (newSensorData.isNotEmpty()) {
+            var x2 = newSensorData[0]
+            var y2 = newSensorData[1]
+            var z2 = newSensorData[2]
+            _horizontalData2.postValue(x2.toDouble())
+            _verticalData2.postValue(y2.toDouble())
+            _zData2.postValue(z2.toDouble())
         }
     }
 
