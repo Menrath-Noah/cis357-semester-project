@@ -49,7 +49,6 @@ import kotlin.random.Random
 //val deathCounter: LiveData<Int> get() = _deathCounter
 
 class MainActivity : ComponentActivity() {
-   // private lateinit var gLView: GLSurfaceView
     private lateinit var sensorManagerModel: SensorManagerModel
     private val _gameMessage = MutableLiveData<String>("")
     val gameMessage: LiveData<String> get() = _gameMessage
@@ -66,25 +65,6 @@ class MainActivity : ComponentActivity() {
             )
         }
     }
-    /*
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        sensorManagerModel = SensorManagerModel(this)
-        sensorManagerModel.sensorData.observe(this) { sensorValues ->
-            sensorManagerModel.changeSensorData(sensorValues)
-        }
-        gLView = MyGLSurfaceView(this)
-        setContentView(gLView)
-
-
-        enableEdgeToEdge()
-
-    }*/
-
-
-
-
-
 
 }
 

@@ -79,8 +79,10 @@ fun Login(
 
         Button(
             onClick = {
-                vm.login(username, password) {
-                    onLoginSuccess(it)
+                vm.login(username, password) { uid ->
+                    if (uid != null) {
+                        onLoginSuccess(uid)
+                    }
                 }
             },
             modifier = Modifier.fillMaxWidth()
@@ -161,7 +163,7 @@ fun CreateAccount(
             onClick = {
                 vm.createAccount(email, name, password) { uid ->
                     if (uid != null) {
-                        navController.navigate("game/$uid")
+                        navController.navigate("game_config/$uid")
                     }
                 }
             },
