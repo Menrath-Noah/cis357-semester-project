@@ -31,10 +31,8 @@ fun AppNavHost(
         }
 
         composable("signup") {
-            createAccount(name = "",
-                email = "",
-                password = "",
-                navController = navController
+            CreateAccount(
+                    navController = navController
             )
         }
 

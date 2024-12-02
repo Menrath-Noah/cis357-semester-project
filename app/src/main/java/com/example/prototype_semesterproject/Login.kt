@@ -40,7 +40,7 @@ fun Login(
 )
 {
     var username by remember { mutableStateOf("me@test.com") }
-    var password by remember { mutableStateOf("1234567") }
+    var password by remember { mutableStateOf("123456") }
     val authSuccess = vm.authSuccess.observeAsState()
     val authError = vm.authError.observeAsState()
 
@@ -109,27 +109,9 @@ fun Login(
         }
     }
 }
+
+
 @Composable
-fun createAccount(name: String,
-                  email: String,
-                  password: String,
-                  vm: AuthViewModel = AuthViewModel(),
-                  navController: NavController)
-{ // creates user account
-    val db = Firebase.firestore
-    val auth = FirebaseAuth.getInstance()
-    vm.viewModelScope.launch(Dispatchers.IO) {
-        auth.createUserWithEmailAndPassword(email, password).await()
-        var changeName = userProfileChangeRequest { displayName = name }
-        auth.currentUser?.updateProfile(changeName)?.await()
-        var uid = auth.currentUser?.uid
-        //var playerStats = gameStat(totalSuccessfulSwipes,winConditionMet,rowLen, maxScore)
-        db.collection("players").document("$uid").set(hashMapOf<String,Int>())
-    }
-    println(auth.currentUser?.displayName)
-    navController.navigate(route = "login")
-}
-/*
 fun CreateAccount(
     modifier: Modifier = Modifier,
     navController: NavController,
@@ -210,4 +192,3 @@ fun CreateAccount(
         }
     }
 }
-*/
