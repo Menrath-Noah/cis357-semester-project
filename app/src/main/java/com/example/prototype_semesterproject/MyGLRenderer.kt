@@ -5,6 +5,13 @@ import android.opengl.GLSurfaceView
 import android.opengl.Matrix
 import android.os.SystemClock
 import androidx.annotation.RequiresApi
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import com.google.firebase.Firebase
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.firestore
+import java.text.SimpleDateFormat
+import java.util.Locale
 import javax.microedition.khronos.egl.EGLConfig
 import javax.microedition.khronos.opengles.GL10
 import kotlin.random.Random
@@ -48,12 +55,19 @@ class MyGLRenderer : GLSurfaceView.Renderer {
     var playerJump = false
     var playerJumpDown = false
 
+    var gameStartTime = 0L
+    val _score = MutableLiveData<Long>(0)
+    val score: LiveData<Long> get() = _score
+    private val auth = FirebaseAuth.getInstance()
+    private val _gameStatsList = MutableLiveData<List<GameStats>>()
+    val gameStatsList: LiveData<List<GameStats>> get() = _gameStatsList
 
     override fun onSurfaceCreated(unused: GL10, config: EGLConfig) {
         // Set the background frame color
         GLES20.glClearColor(1.0f, 1.0f, 1.0f, 1.0f)
         var randX = Random.nextDouble(-5.0, 5.0)
         var newBlock = Square2(randX)
+        gameStartTime = SystemClock.uptimeMillis()
         blocksArr.add(newBlock)
         blockCoords.add(randX)
         blocksArr.add(Square3())
@@ -237,8 +251,10 @@ class MyGLRenderer : GLSurfaceView.Renderer {
                                 var rando = Random.nextInt(20)
                                 println(rando)
                                 _death.postValue(true)
+                                val currentTime = SystemClock.uptimeMillis()
+                                _score.postValue((currentTime - gameStartTime) / 100)
                                 _deathCounter.postValue(_deathCounter.value?.plus(1) ?: 1)
-
+                                saveGameStats()
                             }
                         }
                     }
@@ -278,4 +294,43 @@ class MyGLRenderer : GLSurfaceView.Renderer {
 
     }
 
+    data class GameStats(
+        val datetime: String = "", // ISO 8601 Format: "YYYY-MM-DDTHH:mm:ss"
+        val score: Long
+    )
+
+    private fun saveGameStats() {
+        val currentDateTime = SimpleDateFormat(
+            "yyyy-MM-dd'T'HH:mm:ss",
+            Locale.getDefault()
+        ).format(System.currentTimeMillis())
+
+        val gameStats = GameStats(
+            datetime = currentDateTime,
+            score = score.value!!
+        )
+        val userId = auth.currentUser?.uid
+        val myDB = Firebase.firestore
+        val where2safe = myDB.collection("players").document(userId!!).collection("gamestats")
+        where2safe.add(gameStats)
+
+    }
+
+    fun loadGameStats(){
+        val userId = auth.currentUser?.uid
+        val myDB = Firebase.firestore
+        val collRef = myDB.collection("players").document(userId!!).collection("gamestats")
+        if (userId != null) {
+            collRef.get().addOnSuccessListener {
+                _gameStatsList.value = emptyList()
+                it.documents.forEach {x ->
+                    val gameStats = x.toObject(GameStats::class.java)
+                    if (gameStats != null) {
+                        val currentList = _gameStatsList.value ?: emptyList()
+                        _gameStatsList.value = currentList + gameStats
+                    }
+                }
+            }
+        }
+    }
 }

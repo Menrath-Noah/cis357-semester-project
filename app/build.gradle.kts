@@ -52,7 +52,7 @@ android {
 
 dependencies {
     implementation(platform("com.google.firebase:firebase-bom:31.0.0"))
-    implementation("com.google.firebase:firebase-auth-ktx")
+    //implementation("com.google.firebase:firebase-auth-ktx")
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)

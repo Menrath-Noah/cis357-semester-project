@@ -15,7 +15,8 @@ val deathCounter: LiveData<Int> get() = _deathCounter
 @Composable
 fun GameConfig(
     gameMessage: LiveData<String>,
-    sensorManagerModel: SensorManagerModel
+    sensorManagerModel: SensorManagerModel,
+    uid: String
 ) {
     val context = LocalContext.current
     val gLView = MyGLSurfaceView(context)

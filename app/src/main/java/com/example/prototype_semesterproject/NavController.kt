@@ -23,9 +23,9 @@ fun AppNavHost(
         composable("login") {
             Login(
                 navController = navController,
-                onLoginSuccess = { uid ->
+                onLoginSuccess = {
                     // Navigate to game_config with the UID as an argument
-                    navController.navigate("game_config/$uid")
+                    navController.navigate("game_config/$it")
                 }
             )
         }
@@ -36,12 +36,14 @@ fun AppNavHost(
             )
         }
 
-        composable("game_config/{uid}") { backStackEntry ->
-            val uid = backStackEntry.arguments?.getString("uid") ?: ""
-            GameConfig(
-                gameMessage = gameMessage,
-                sensorManagerModel = sensorManagerModel
-            )
+        composable("game_config/{uid}") {
+            it.arguments?.getString("uid")?.let { uid ->
+                GameConfig(
+                    gameMessage = gameMessage,
+                    sensorManagerModel = sensorManagerModel,
+                    uid = uid
+                )
+            }
         }
     }
 }
