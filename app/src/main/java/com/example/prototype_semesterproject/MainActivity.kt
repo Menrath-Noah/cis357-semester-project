@@ -54,17 +54,19 @@ class MainActivity : ComponentActivity() {
     private lateinit var sensorManagerModel: SensorManagerModel
     private val _gameMessage = MutableLiveData<String>("")
     val gameMessage: LiveData<String> get() = _gameMessage
-
+    private lateinit var vm: MyGLRenderer
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         // Initialize Firebase
         FirebaseApp.initializeApp(this)
         sensorManagerModel = SensorManagerModel(this)
+        vm = MyGLRenderer()
         val auth = FirebaseAuth.getInstance()
         setContent {
             AppNavHost(
                 gameMessage = gameMessage,
-                sensorManagerModel = sensorManagerModel
+                sensorManagerModel = sensorManagerModel,
+                vm = vm
             )
         }
     }

@@ -13,7 +13,8 @@ fun AppNavHost(
     navController: NavHostController = rememberNavController(),
     modifier: Modifier = Modifier,
     gameMessage: LiveData<String>,
-    sensorManagerModel: SensorManagerModel
+    sensorManagerModel: SensorManagerModel,
+    vm: MyGLRenderer
 ) {
     NavHost(
         navController = navController,
@@ -25,7 +26,8 @@ fun AppNavHost(
                 navController = navController,
                 onLoginSuccess = {
                     // Navigate to game_config with the UID as an argument
-                    navController.navigate("game_config/$it")
+                    //navController.navigate("game_config/$it")
+                    navController.navigate("game_stats/$it")
                 }
             )
         }
@@ -42,6 +44,17 @@ fun AppNavHost(
                     gameMessage = gameMessage,
                     sensorManagerModel = sensorManagerModel,
                     uid = uid
+                )
+            }
+        }
+
+        composable("game_stats/{uid}") {
+            it.arguments?.getString("uid")?.let { uid ->
+                GameStatsScreen(
+                    //gameMessage = gameMessage,
+                    //sensorManagerModel = sensorManagerModel,
+                    vm = vm,
+                    userId = uid
                 )
             }
         }

@@ -8,9 +8,11 @@ import androidx.annotation.RequiresApi
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.google.firebase.Firebase
+import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.firestore
 import java.text.SimpleDateFormat
+import java.util.Calendar
 import java.util.Locale
 import javax.microedition.khronos.egl.EGLConfig
 import javax.microedition.khronos.opengles.GL10
@@ -295,42 +297,62 @@ class MyGLRenderer : GLSurfaceView.Renderer {
     }
 
     data class GameStats(
-        val datetime: String = "", // ISO 8601 Format: "YYYY-MM-DDTHH:mm:ss"
-        val score: Long
+        var score: Long = 0,
     )
 
     private fun saveGameStats() {
-        val currentDateTime = SimpleDateFormat(
-            "yyyy-MM-dd'T'HH:mm:ss",
-            Locale.getDefault()
-        ).format(System.currentTimeMillis())
+        // Get the current date and time in a readable format
+        val currentDateTime = Calendar.getInstance()
+        val date = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(currentDateTime.time)
+        val time = SimpleDateFormat("HH:mm:ss", Locale.getDefault()).format(currentDateTime.time)
 
         val gameStats = GameStats(
-            datetime = currentDateTime,
-            score = score.value!!
+            score = score.value!!,
         )
-        val userId = auth.currentUser?.uid
-        val myDB = Firebase.firestore
-        val where2safe = myDB.collection("players").document(userId!!).collection("gamestats")
-        where2safe.add(gameStats)
 
-    }
-
-    fun loadGameStats(){
         val userId = auth.currentUser?.uid
-        val myDB = Firebase.firestore
-        val collRef = myDB.collection("players").document(userId!!).collection("gamestats")
         if (userId != null) {
-            collRef.get().addOnSuccessListener {
-                _gameStatsList.value = emptyList()
-                it.documents.forEach {x ->
-                    val gameStats = x.toObject(GameStats::class.java)
-                    if (gameStats != null) {
-                        val currentList = _gameStatsList.value ?: emptyList()
-                        _gameStatsList.value = currentList + gameStats
-                    }
+            val myDB = Firebase.firestore
+            val where2safe = myDB.collection("players").document(userId).collection("gamestats")
+            where2safe.add(gameStats)
+                .addOnSuccessListener {
+                    println("Game stats saved successfully.")
                 }
-            }
+                .addOnFailureListener { e ->
+                    println("Failed to save game stats: ${e.message}")
+                }
+        } else {
+            println("User ID is null, cannot save game stats.")
         }
     }
+
+
+    fun loadGameStats() {
+        val myDB = Firebase.firestore
+        val userId = auth.currentUser?.uid
+        if (userId != null) {
+            myDB.collection("players")
+                .document(userId)
+                .collection("gamestats")
+                .get()
+                .addOnSuccessListener { documents ->
+                    val statsList = mutableListOf<GameStats>()
+                    documents.forEach { x ->
+                        try {
+                            val gameStats = x.toObject(GameStats::class.java)
+                            if (gameStats != null) {
+                                val currentList = _gameStatsList.value ?: emptyList()
+                                _gameStatsList.value = currentList + gameStats
+                            }
+                        } catch (e: Exception) {
+                            println("Error converting document: ${x.id}, ${e.message}")
+                        }
+                    }
+                }
+                .addOnFailureListener { e ->
+                    println("Error loading game stats: ${e.message}")
+                }
+        }
+    }
+
 }
