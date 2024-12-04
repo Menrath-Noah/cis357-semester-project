@@ -108,12 +108,17 @@ class MainActivity : ComponentActivity() {
         var phaseShiftTimer = SystemClock.uptimeMillis()
         var lastTime4 = SystemClock.uptimeMillis()
         var lastTime5 = SystemClock.uptimeMillis()
+        var lastTime6 = SystemClock.uptimeMillis()
+        var lastTime7 = SystemClock.uptimeMillis()
         var zVal = 5.0
         val timerBlockSpeed = 15L
         val timerBlockSpawn = 1000L
         val timerBlockSpawn2 = 600L
         val timerRTBlockSpawn = 2500L
         val phaseShiftDuration = 3500L
+        val phaseShiftDataCooldown = 1000L
+//        val phaseShiftCooldown = 6500L
+        val phaseShiftCooldown = 6L
 //        var blocksArr = mutableListOf<Square2>()
         var blocksArr = mutableListOf<Any>()
         var blocksArrTemp = mutableListOf<Any>()
@@ -130,6 +135,9 @@ class MainActivity : ComponentActivity() {
         var playerJump = false
         var playerJumpDown = false
         var phaseShift = false
+        var z2Arr = mutableListOf<Double>()
+        var can_phaseshift = true
+        var phaseshift_cooldown_timer = SystemClock.uptimeMillis()
 
 
         override fun onSurfaceCreated(unused: GL10, config: EGLConfig) {
@@ -172,6 +180,12 @@ class MainActivity : ComponentActivity() {
 //            val time2 = SystemClock.uptimeMillis()
 
 
+            if (!can_phaseshift) { // resets ability to phaseshift
+                if (time - lastTime6 >= phaseShiftCooldown) {
+                    can_phaseshift = true
+                    lastTime6 = time
+                }
+            }
 
             if (time - lastTime2 >= timerBlockSpawn || timerYes2) {
                 for (i in 0..2) {
@@ -202,6 +216,10 @@ class MainActivity : ComponentActivity() {
                     blockCoords.add(randX)
                 }
             }
+            if (time - lastTime7 >= phaseShiftDataCooldown) {
+                lastTime7 = time
+                z2Arr.clear()
+            }
             if (time - lastTime3 >= timerBlockSpawn2 || timerYes3) {
                 for (i in 0..2) {
                     var randX = Random.nextDouble(camX-6.0, camX+6.0)
@@ -231,9 +249,76 @@ class MainActivity : ComponentActivity() {
                 }
             }
 //            if (phaseShiftTimer)
+            if (can_phaseshift) {
+                if (zData2.value!! >= 2.5 || zData2.value!! <= -2.5) { // Fast pushing motion after a few numbers will be positive, Fast pulling motion after a few numbers will be negative
+//                println(zData2.value)
+                if (zData2.value !in z2Arr){
+                    z2Arr.add(zData2.value!!)
+                    println(z2Arr)
+                    lastTime7 = SystemClock.uptimeMillis()
+
+                }
+                    if (z2Arr.size >= 3) {
+                        var positive = false
+                        var negative = false
+                        for (num in z2Arr) {
+                            if (num > 0) {
+                                positive = true
+                            }
+                            if (num < 0) {
+                                negative = true
+                            }
+                        }
+
+                        if (positive && negative) {
+                            if (z2Arr.isNotEmpty()) {
+                                if (z2Arr.last() > 0) {
+                                    println("FORWARD PUSH\n")
+                                    z2Arr.clear()
+                                    for (block in blocksArr) {
+                                        when (block) {
+                                            is Square3 -> {
+                                                if (phaseShift == false) {
+                                                    block.blockColor = "transparent"
+                                                    phaseShift = true
+                                                    phaseShiftTimer = SystemClock.uptimeMillis()
+                                                }
+                                            }
+                                        }
+
+                                    }
+                                } else if (z2Arr.last() < 0) {
+                                    println("BACKWARD PUSH\n")
+                                    z2Arr.clear()
+                                }
+                            }
+                        } else {
+                            z2Arr.clear()
+                        }
+//                    var total_val = 0.0
+//                    for (num in z2Arr) {
+//                        total_val += num
+//                    }
+//                    if (total_val < 0) {
+//                        println(z2Arr)
+//                        println("FORWARD PUSH\n")
+//                    }
+//                    else if (total_val > 0) {
+//                        println(z2Arr)
+//                        println("BACKWARDS PUSH\n")
+//                    }
+//                    z2Arr.clear()
+                    }
+
+                }
+            }
+            if (verticalData2.value!! >= 5.5 || verticalData2.value!! <= -5.5) {
+//                println(verticalData2.value)
+            }
             if (phaseShift) {
-                if (time - phaseShiftTimer >= phaseShiftDuration || timerYes4) {
+                if (time - phaseShiftTimer >= phaseShiftDuration || timerYes4) { // deactivates phase shift ability
                     phaseShift = false
+                    can_phaseshift = false
                     for (block in blocksArr) {
                         when (block) {
                             is Square3 -> {
@@ -274,7 +359,7 @@ class MainActivity : ComponentActivity() {
                 }
             }
 //            if ((verticalData.value!! > 0.0 && verticalData.value!! <= 2.0) || playerJump) {
-            if ((zData.value!! <= -7.5) || playerJump) {
+            if ((zData.value!! <= -117.5) || playerJump) {
 
                 if ((camY > 3.5) || playerJumpDown) {
                     camY -= .05
@@ -298,20 +383,20 @@ class MainActivity : ComponentActivity() {
                 }
             }
 
-            if ((zData.value!! >= 7.5)) {
-                for (block in blocksArr) {
-                    when (block) {
-                        is Square3 -> {
-                            if (phaseShift == false) {
-                                block.blockColor = "transparent"
-                                phaseShift = true
-                                phaseShiftTimer = SystemClock.uptimeMillis()
-                            }
-                        }
-                    }
-
-                }
-            }
+//            if ((zData.value!! >= 7.5)) {
+//                for (block in blocksArr) {
+//                    when (block) {
+//                        is Square3 -> {
+//                            if (phaseShift == false) {
+//                                block.blockColor = "transparent"
+//                                phaseShift = true
+//                                phaseShiftTimer = SystemClock.uptimeMillis()
+//                            }
+//                        }
+//                    }
+//
+//                }
+//            }
             /* ROTATING MATRIX - IN PROGRESS
             if (rotatingBlocksArr.isNotEmpty()) {
                 for (rtBlock in rotatingBlocksArr) {
@@ -952,42 +1037,101 @@ val _verticalData = MutableLiveData(0.0)
 val verticalData: MutableLiveData<Double> get() = _verticalData
 val _zData = MutableLiveData(0.0)
 val zData: MutableLiveData<Double> get() = _zData
-val _testData = MutableLiveData(0.0)
-val testData: MutableLiveData<Double> get() = _testData
+
+val _horizontalData2 = MutableLiveData(0.0)
+val horizontalData2: MutableLiveData<Double> get() = _horizontalData2
+val _verticalData2 = MutableLiveData(0.0)
+val verticalData2: MutableLiveData<Double> get() = _verticalData2
+val _zData2 = MutableLiveData(0.0)
+val zData2: MutableLiveData<Double> get() = _zData2
+
+val _gravityA = MutableLiveData(0.0)
+val gravityA: MutableLiveData<Double> get() = _gravityA
+val _gravityB = MutableLiveData(0.0)
+val gravityB: MutableLiveData<Double> get() = _gravityB
+val _gravityC = MutableLiveData(0.0)
+val gravityC: MutableLiveData<Double> get() = _gravityC
 class SensorManagerModel(context: Context) : SensorEventListener {
     private var mSensorManager: SensorManager = context.getSystemService(Context.SENSOR_SERVICE) as SensorManager
     private var mAccelerometer: Sensor? = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
+    private var mLinearAcceleration: Sensor? = mSensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION)
+    private var mGravity: Sensor? = mSensorManager.getDefaultSensor(Sensor.TYPE_GRAVITY)
     var sensor: FloatArray = floatArrayOf()
+    var sensor2: FloatArray = floatArrayOf()
+    var sensor3: FloatArray = floatArrayOf()
 
     val _sensorData = MutableLiveData(sensor)
     val sensorData: MutableLiveData<FloatArray> get() = _sensorData
 
+    val _sensorData2 = MutableLiveData(sensor2)
+    val sensorData2: MutableLiveData<FloatArray> get() = _sensorData2
+
+    val _sensorData3 = MutableLiveData(sensor3)
+    val sensorData3: MutableLiveData<FloatArray> get() = _sensorData3
+
 
     init {
         mAccelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
+        mLinearAcceleration = mSensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION)
+        mGravity= mSensorManager.getDefaultSensor(Sensor.TYPE_GRAVITY)
 
 
         if (mAccelerometer != null) {
             mSensorManager.registerListener(this, mAccelerometer, SensorManager.SENSOR_DELAY_NORMAL)
+        }
+        if (mLinearAcceleration != null) {
+            mSensorManager.registerListener(this, mLinearAcceleration, SensorManager.SENSOR_DELAY_NORMAL)
+        }
+        if (mGravity != null) {
+            mSensorManager.registerListener(this, mGravity, SensorManager.SENSOR_DELAY_NORMAL)
         }
     }
 
     override fun onAccuracyChanged(sensor: Sensor, accuracy: Int) {}
 
     override fun onSensorChanged(event: SensorEvent) {
-        sensorData.postValue(event.values)
+        if (event.sensor.type == Sensor.TYPE_ACCELEROMETER) {
+            sensorData.postValue(event.values)
+        }
+        if (event.sensor.type == Sensor.TYPE_LINEAR_ACCELERATION) {
+            sensorData2.postValue(event.values)
+        }
+        if (event.sensor.type == Sensor.TYPE_GRAVITY) {
+            sensorData3.postValue(event.values)
+        }
+        changeSensorData(event.values, event.sensor.type)
     }
-    
-    fun changeSensorData(newSensorData: FloatArray) {
-        if (newSensorData.isNotEmpty()) {
-            var horizontal = newSensorData[0]
-            var vertical = newSensorData[1]
-            var z = newSensorData[2]
-            var test = newSensorData[1]
-            _horizontalData.postValue(horizontal.toDouble())
-            _verticalData.postValue(vertical.toDouble())
-            _zData.postValue(z.toDouble())
-            _testData.postValue(test.toDouble())
+
+    fun changeSensorData(newSensorData: FloatArray, sensor_type: Int?=Sensor.TYPE_ACCELEROMETER) {
+        if (sensor_type == Sensor.TYPE_ACCELEROMETER) {
+            if (newSensorData.isNotEmpty()) {
+                var horizontal = newSensorData[0]
+                var vertical = newSensorData[1]
+                var z = newSensorData[2]
+                _horizontalData.postValue(horizontal.toDouble())
+                _verticalData.postValue(vertical.toDouble())
+                _zData.postValue(z.toDouble())
+            }
+        }
+        if (sensor_type == Sensor.TYPE_LINEAR_ACCELERATION) {
+            if (newSensorData.isNotEmpty()) {
+                var x2 = newSensorData[0]
+                var y2 = newSensorData[1]
+                var z2 = newSensorData[2]
+                _horizontalData2.postValue(x2.toDouble())
+                _verticalData2.postValue(y2.toDouble())
+                _zData2.postValue(z2.toDouble())
+            }
+        }
+        if (sensor_type == Sensor.TYPE_GRAVITY) {
+            if (newSensorData.isNotEmpty()) {
+                var x3 = newSensorData[0]
+                var y3 = newSensorData[1]
+                var z3 = newSensorData[2]
+                _gravityA.postValue(x3.toDouble())
+                _gravityB.postValue(y3.toDouble())
+                _gravityC.postValue(z3.toDouble())
+            }
         }
     }
 
