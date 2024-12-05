@@ -188,7 +188,7 @@ class MainActivity : ComponentActivity() {
                     lastTime6 = time
                 }
             }
-            println(gravityA.value!!)
+//            println(gravityA.value!!)
 
 
 
@@ -257,6 +257,11 @@ class MainActivity : ComponentActivity() {
 
 
 //            println(zData.value!!)
+
+//            println(gravityC.value)
+//            if (gravityB.value!! < 8.5 && gravityC.value!! < -2.5) {
+//                println("LOLOL")
+//            }
 
 
 
@@ -350,7 +355,7 @@ class MainActivity : ComponentActivity() {
 //                lastTime5 = time
 //            }
 
-            if (horizontalData.value!! >= 2) {
+            if (horizontalData.value!! >= 1) {
                 camX -= .05
                 for (block in blocksArr) {
                     when (block) {
@@ -371,7 +376,8 @@ class MainActivity : ComponentActivity() {
                 }
             }
 //            if ((verticalData.value!! > 0.0 && verticalData.value!! <= 2.0) || playerJump) {
-            if ((zData.value!! <= -5.0) || playerJump) {
+//            if ((zData.value!! <= -5.0) || playerJump) {
+            if ((gravityB.value!! < 8.5 && gravityC.value!! < -2.5) || playerJump) {
 
                 if ((camY > 3.5) || playerJumpDown) {
                     camY -= .05
