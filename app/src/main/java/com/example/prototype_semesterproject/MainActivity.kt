@@ -118,6 +118,7 @@ class MainActivity : ComponentActivity() {
         val timerRTBlockSpawn = 2500L
         val phaseShiftDuration = 3500L
         val phaseShiftDataCooldown = 1000L
+        val pushSensing = 5000L
 //        val phaseShiftCooldown = 6500L
         val phaseShiftCooldown = 6L
 //        var blocksArr = mutableListOf<Square2>()
@@ -265,6 +266,12 @@ class MainActivity : ComponentActivity() {
 
 
 
+            if (time - lastTime8 >= pushSensing) {
+                stop_processing = false
+                lastTime8 = time
+
+            }
+
 
             if (can_phaseshift) {
                 if (zData2.value!! >= 2.5 || zData2.value!! <= -2.5) { // Fast pushing motion after a few numbers will be positive, Fast pulling motion after a few numbers will be negative
@@ -290,23 +297,29 @@ class MainActivity : ComponentActivity() {
                         if (positive && negative) {
                             if (z2Arr.isNotEmpty()) {
                                 if (z2Arr.last() > 0) {
-                                    println("FORWARD PUSH\n")
-                                    z2Arr.clear()
-                                    for (block in blocksArr) {
-                                        when (block) {
-                                            is Square3 -> {
-                                                if (phaseShift == false) {
-                                                    block.blockColor = "transparent"
-                                                    phaseShift = true
-                                                    phaseShiftTimer = SystemClock.uptimeMillis()
+                                    if (!stop_processing) {
+                                        stop_processing = true
+                                        println("FORWARD PUSH\n")
+                                        z2Arr.clear()
+                                        for (block in blocksArr) {
+                                            when (block) {
+                                                is Square3 -> {
+                                                    if (phaseShift == false) {
+                                                        block.blockColor = "transparent"
+                                                        phaseShift = true
+                                                        phaseShiftTimer = SystemClock.uptimeMillis()
+                                                    }
                                                 }
                                             }
-                                        }
 
+                                        }
                                     }
                                 } else if (z2Arr.last() < 0) {
-                                    println("BACKWARD PUSH\n")
-                                    z2Arr.clear()
+                                    if (!stop_processing) {
+                                        stop_processing = true
+                                        println("BACKWARD PUSH\n")
+                                        z2Arr.clear()
+                                    }
                                 }
                             }
                         } else {
@@ -377,7 +390,7 @@ class MainActivity : ComponentActivity() {
             }
 //            if ((verticalData.value!! > 0.0 && verticalData.value!! <= 2.0) || playerJump) {
 //            if ((zData.value!! <= -5.0) || playerJump) {
-            if ((gravityB.value!! < 8.5 && gravityC.value!! < -2.5) || playerJump) {
+            if ((gravityB.value!! < 9.25 && gravityC.value!! < -2.5) || playerJump) {
 
                 if ((camY > 3.5) || playerJumpDown) {
                     camY -= .05
