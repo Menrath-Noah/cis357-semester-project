@@ -110,6 +110,7 @@ class MainActivity : ComponentActivity() {
         var lastTime5 = SystemClock.uptimeMillis()
         var lastTime6 = SystemClock.uptimeMillis()
         var lastTime7 = SystemClock.uptimeMillis()
+        var lastTime8 = SystemClock.uptimeMillis()
         var zVal = 5.0
         val timerBlockSpeed = 15L
         val timerBlockSpawn = 1000L
@@ -137,6 +138,7 @@ class MainActivity : ComponentActivity() {
         var phaseShift = false
         var z2Arr = mutableListOf<Double>()
         var can_phaseshift = true
+        var stop_processing = false
         var phaseshift_cooldown_timer = SystemClock.uptimeMillis()
 
 
@@ -186,6 +188,9 @@ class MainActivity : ComponentActivity() {
                     lastTime6 = time
                 }
             }
+            println(gravityA.value!!)
+
+
 
             if (time - lastTime2 >= timerBlockSpawn || timerYes2) {
                 for (i in 0..2) {
@@ -216,7 +221,7 @@ class MainActivity : ComponentActivity() {
                     blockCoords.add(randX)
                 }
             }
-            if (time - lastTime7 >= phaseShiftDataCooldown) {
+            if (time - lastTime7 >= phaseShiftDataCooldown) { // clears the phaseshift data after specific time
                 lastTime7 = time
                 z2Arr.clear()
             }
@@ -249,12 +254,19 @@ class MainActivity : ComponentActivity() {
                 }
             }
 //            if (phaseShiftTimer)
+
+
+//            println(zData.value!!)
+
+
+
+
             if (can_phaseshift) {
                 if (zData2.value!! >= 2.5 || zData2.value!! <= -2.5) { // Fast pushing motion after a few numbers will be positive, Fast pulling motion after a few numbers will be negative
 //                println(zData2.value)
                 if (zData2.value !in z2Arr){
                     z2Arr.add(zData2.value!!)
-                    println(z2Arr)
+//                    println(z2Arr)
                     lastTime7 = SystemClock.uptimeMillis()
 
                 }
@@ -312,8 +324,8 @@ class MainActivity : ComponentActivity() {
 
                 }
             }
-            if (verticalData2.value!! >= 5.5 || verticalData2.value!! <= -5.5) {
-//                println(verticalData2.value)
+            if (verticalData.value!! >= 5.5 || verticalData.value!! <= -5.5) {
+//                println(verticalData.value)
             }
             if (phaseShift) {
                 if (time - phaseShiftTimer >= phaseShiftDuration || timerYes4) { // deactivates phase shift ability
@@ -359,7 +371,7 @@ class MainActivity : ComponentActivity() {
                 }
             }
 //            if ((verticalData.value!! > 0.0 && verticalData.value!! <= 2.0) || playerJump) {
-            if ((zData.value!! <= -117.5) || playerJump) {
+            if ((zData.value!! <= -5.0) || playerJump) {
 
                 if ((camY > 3.5) || playerJumpDown) {
                     camY -= .05
@@ -1059,6 +1071,7 @@ class SensorManagerModel(context: Context) : SensorEventListener {
     var sensor: FloatArray = floatArrayOf()
     var sensor2: FloatArray = floatArrayOf()
     var sensor3: FloatArray = floatArrayOf()
+    var sensor4: FloatArray = floatArrayOf()
 
     val _sensorData = MutableLiveData(sensor)
     val sensorData: MutableLiveData<FloatArray> get() = _sensorData
@@ -1068,6 +1081,9 @@ class SensorManagerModel(context: Context) : SensorEventListener {
 
     val _sensorData3 = MutableLiveData(sensor3)
     val sensorData3: MutableLiveData<FloatArray> get() = _sensorData3
+
+    val _sensorData4 = MutableLiveData(sensor4)
+    val sensorData4: MutableLiveData<FloatArray> get() = _sensorData4
 
 
     init {
