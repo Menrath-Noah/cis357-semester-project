@@ -27,23 +27,24 @@ fun AppNavHost(
                 onLoginSuccess = {
                     // Navigate to game_config with the UID as an argument
 //                    navController.navigate("game_config/$it")
-                    navController.navigate("game_stats/$it")
+//                    navController.navigate("game_stats/$it")
+                    navController.navigate("main_screen/$it")
                 }
             )
         }
 
         composable("signup") {
             CreateAccount(
-                    navController = navController
+                navController = navController
             )
         }
 
         composable("game_config/{uid}") {
             it.arguments?.getString("uid")?.let { uid ->
                 GameConfig(
-                    gameMessage = gameMessage,
                     sensorManagerModel = sensorManagerModel,
-                    uid = uid
+                    uid = uid,
+                    navController = navController
                 )
             }
         }
@@ -59,5 +60,15 @@ fun AppNavHost(
                 )
             }
         }
+        // Main Screen Route
+        composable("main_screen/{uid}") {
+            it.arguments?.getString("uid")?.let { uid ->
+                mainScreen(
+                    uid = uid,
+                    navController = navController
+                )
+            }
+        }
+
     }
 }

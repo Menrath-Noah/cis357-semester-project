@@ -85,6 +85,11 @@ class MyGLRenderer : GLSurfaceView.Renderer {
     private var isScoreAscending = true
     var _loading = MutableLiveData<Boolean>(true)
     val loading: LiveData<Boolean> get() = _loading
+    var lastScore: Long = -1
+    // private val _death = MutableLiveData(false)
+    //private val deathState = _death.observeAsState(initial = false)
+    //private val _deathCounter = MutableLiveData(0)
+    //val deathCounter: LiveData<Int> get() = _deathCounter
 
 
     override fun onSurfaceCreated(unused: GL10, config: EGLConfig) {
@@ -121,8 +126,10 @@ class MyGLRenderer : GLSurfaceView.Renderer {
         var randLength: Double
         var randWidth: Double
         if (_death.value == true) {
-            spawn()
-            _death.postValue(false)
+            isDateAscending = false
+            isScoreAscending = false
+            saveGameStats()
+            //   _death.postValue(false)
         }
         GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT)
         Matrix.setLookAtM(
@@ -502,35 +509,36 @@ class MyGLRenderer : GLSurfaceView.Renderer {
 //            println(zData0.value)
 //            println(verticalData0.value)
 
-        val square3 = blocksArr.find { it is Square3 } as Square3
-        for (block in blocksArr) {
-            when (block) {
-                is Square2 -> {
-                    if (square3.blockColor != "transparent") {
-                        if (block.zVal <= 0.0) {
-                            if (block.xVal != null) {
+        if (death.value == false) {
+            val square3 = blocksArr.find { it is Square3 } as Square3
+            for (block in blocksArr) {
+                when (block) {
+                    is Square2 -> {
+                        if (square3.blockColor != "transparent") {
+                            if (block.zVal <= 0.0) {
+                                if (block.xVal != null) {
 //                                    if (camX >= (block.xVal!! - .35) && camX <= (block.xVal!! + .35)) {
-                                if (Math.abs(camX - block.xVal!!) <= 0.36) {
-                                    if (-0.55 + camY <= block.heightVal) {
-//                                            var rando = Random.nextInt(20)
-////                                    println(rando)
-                                        _death.postValue(true)
-                                        _score.postValue((SystemClock.uptimeMillis() - gameStartTime) / 100)
-                                        _deathCounter.postValue(
-                                            _deathCounter.value?.plus(1) ?: 1
-                                        )
-                                        saveGameStats()
-                                    }
+                                    if (Math.abs(camX - block.xVal!!) <= 0.36) {
+                                        if (-0.55 + camY <= block.heightVal) {
+                                            var rando = Random.nextInt(20)
+                                            println(rando)
+                                            _death.postValue(true)
+                                            val currentTime = SystemClock.uptimeMillis()
+                                            _score.postValue((currentTime - gameStartTime) / 100)
+                                            _deathCounter.postValue(_deathCounter.value?.plus(1) ?: 1)
+                                            break
+                                        }
 
+                                    }
                                 }
                             }
                         }
+
                     }
 
-                }
-
-                is Triangle -> {
-                    println("Triangle")
+                    is Triangle -> {
+                        println("Triangle")
+                    }
                 }
             }
         }
@@ -578,15 +586,18 @@ class MyGLRenderer : GLSurfaceView.Renderer {
         if (userId != null) {
             val myDB = Firebase.firestore
             val where2safe = myDB.collection("players").document(userId).collection("gamestats")
-            where2safe.add(gameStats)
-                .addOnSuccessListener {
-                    println("Game stats saved successfully.")
-                }
-                .addOnFailureListener { e ->
-                    println("Failed to save game stats: ${e.message}")
-                }
-        } else {
-            println("User ID is null, cannot save game stats.")
+            if (score.value != lastScore) {
+                where2safe.add(gameStats)
+                    .addOnSuccessListener {
+                        println("Game stats saved successfully.")
+                        lastScore = score.value!!
+                    }
+                    .addOnFailureListener { e ->
+                        println("Failed to save game stats: ${e.message}")
+                    }
+            } else {
+                println("User ID is null, cannot save game stats.")
+            }
         }
     }
 

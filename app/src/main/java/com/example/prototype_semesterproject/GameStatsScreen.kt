@@ -73,7 +73,8 @@ fun GameStatsScreen(userId: String, vm:MyGLRenderer, navController:NavController
             }
             Button(
                 onClick = {
-                    navController.popBackStack()
+//                    navController.popBackStack()
+                    navController.navigate("main_screen/{uid}")
                 },
             ) {
                 Text("Back")
