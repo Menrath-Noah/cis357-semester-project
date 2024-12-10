@@ -47,6 +47,7 @@ fun GameStatsScreen(userId: String, vm:MyGLRenderer, navController:NavController
     // Load data
     LaunchedEffect(Unit) {
         vm.loadGameStats()
+        println("loading data")
     }
 
     Column(
