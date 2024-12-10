@@ -28,14 +28,17 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
+import java.text.SimpleDateFormat
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun GameStatsScreen(userId: String, vm:MyGLRenderer) {
+fun GameStatsScreen(userId: String, vm:MyGLRenderer, navController:NavController) {
     val gameStatsList by vm.gameStatsList.observeAsState(emptyList())
 
     // Load data
@@ -54,26 +57,26 @@ fun GameStatsScreen(userId: String, vm:MyGLRenderer) {
             style = MaterialTheme.typography.bodyMedium
         )
 
-//        Text(
-//            text = "Total Games: $totalGames, Average Steps: $averageSteps",
-//            style = MaterialTheme.typography.bodyMedium
-//        )
-
         Spacer(modifier = Modifier.height(25.dp))
-        Text(
-            text = "Sort by:",
-        )
-//        Row(
-//            modifier = Modifier.fillMaxWidth(),
-//            horizontalArrangement = Arrangement.SpaceAround
-//        ) {
-//            Button(onClick = { vm.sortByDate() }) {
-//                Text("Sort by Date")
-//            }
-//            Button(onClick = { vm.sortBySteps() }) {
-//                Text("Sort by Steps")
-//            }
-//        }
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceAround
+        ) {
+            Button(onClick = { vm.sortByDate() }) {
+                Text("Sort by Date")
+            }
+            Button(onClick = { vm.sortByScore() }) {
+                Text("Sort by Score")
+            }
+            Button(
+                onClick = {
+                    navController.popBackStack()
+                },
+            ) {
+                Text("Back")
+            }
+        }
+//
         Spacer(modifier = Modifier.height(16.dp))
 
         if (gameStatsList.isEmpty()) {
@@ -103,9 +106,13 @@ fun GameStatsItem(gameStat: MyGLRenderer.GameStats) {
     ) {
         Column(modifier = Modifier.padding(8.dp)) {
             Text(
-                text = //"Played: ${gameStat.date} " +
-                        "Score: ${gameStat.score}, " ,
-                style = MaterialTheme.typography.bodyMedium
+                text = "Score: ${gameStat.score}",
+                style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold)
+            )
+            Text(
+                text = "Played: ${gameStat.date.toDate()}",
+                style = MaterialTheme.typography.bodyMedium.copy(fontStyle = FontStyle.Italic),
+                modifier = Modifier.padding(top = 4.dp)
             )
         }
     }

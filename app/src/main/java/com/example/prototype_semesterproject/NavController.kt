@@ -54,7 +54,8 @@ fun AppNavHost(
                     //gameMessage = gameMessage,
                     //sensorManagerModel = sensorManagerModel,
                     vm = vm,
-                    userId = uid
+                    userId = uid,
+                    navController = navController
                 )
             }
         }

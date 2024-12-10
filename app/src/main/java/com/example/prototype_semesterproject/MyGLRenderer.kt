@@ -64,6 +64,9 @@ class MyGLRenderer : GLSurfaceView.Renderer {
     private val _gameStatsList = MutableLiveData<List<GameStats>>()
     val gameStatsList: LiveData<List<GameStats>> get() = _gameStatsList
 
+    private var isDateAscending = true
+    private var isScoreAscending = true
+
     override fun onSurfaceCreated(unused: GL10, config: EGLConfig) {
         // Set the background frame color
         GLES20.glClearColor(1.0f, 1.0f, 1.0f, 1.0f)
@@ -298,16 +301,14 @@ class MyGLRenderer : GLSurfaceView.Renderer {
 
     data class GameStats(
         var score: Long = 0,
+        val date: Timestamp = Timestamp.now()
     )
 
     private fun saveGameStats() {
-        // Get the current date and time in a readable format
-        val currentDateTime = Calendar.getInstance()
-        val date = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(currentDateTime.time)
-        val time = SimpleDateFormat("HH:mm:ss", Locale.getDefault()).format(currentDateTime.time)
 
         val gameStats = GameStats(
             score = score.value!!,
+            date = Timestamp.now()
         )
 
         val userId = auth.currentUser?.uid
@@ -353,6 +354,24 @@ class MyGLRenderer : GLSurfaceView.Renderer {
                     println("Error loading game stats: ${e.message}")
                 }
         }
+    }
+
+    fun sortByDate() {
+        _gameStatsList.value = if (isDateAscending) {
+            _gameStatsList.value?.sortedBy { it.date }
+        } else {
+            _gameStatsList.value?.sortedByDescending { it.date }
+        }
+        isDateAscending = !isDateAscending
+    }
+
+    fun sortByScore() {
+        _gameStatsList.value = if (isScoreAscending) {
+            _gameStatsList.value?.sortedBy { it.score }
+        } else {
+            _gameStatsList.value?.sortedByDescending { it.score }
+        }
+        isScoreAscending = !isScoreAscending
     }
 
 }
