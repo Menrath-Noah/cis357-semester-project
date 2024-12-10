@@ -70,7 +70,7 @@ class MyGLRenderer : GLSurfaceView.Renderer {
 
     private var isDateAscending = true
     private var isScoreAscending = true
-    val _loading = MutableLiveData<Boolean>(true)
+    var _loading = MutableLiveData<Boolean>(true)
     val loading: LiveData<Boolean> get() = _loading
 
 
@@ -335,9 +335,10 @@ class MyGLRenderer : GLSurfaceView.Renderer {
 
 
     fun loadGameStats() {
-        val loading = mutableStateOf(true) // Add this to track loading stat
         val myDB = Firebase.firestore
         val userId = auth.currentUser?.uid
+        _gameStatsList.value = emptyList()
+        _loading.value = true
         if (userId != null) {
             myDB.collection("players")
                 .document(userId)
