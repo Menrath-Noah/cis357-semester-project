@@ -14,6 +14,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -40,7 +41,7 @@ import java.text.SimpleDateFormat
 @Composable
 fun GameStatsScreen(userId: String, vm:MyGLRenderer, navController:NavController) {
     val gameStatsList by vm.gameStatsList.observeAsState(emptyList())
-
+    val loading by vm.loading.observeAsState(true)
     // Load data
     LaunchedEffect(Unit) {
         vm.loadGameStats()
@@ -76,19 +77,21 @@ fun GameStatsScreen(userId: String, vm:MyGLRenderer, navController:NavController
                 Text("Back")
             }
         }
-//
         Spacer(modifier = Modifier.height(16.dp))
-
-        if (gameStatsList.isEmpty()) {
-            Text(
-                text = "No game statistics available.",
-                style = MaterialTheme.typography.bodyMedium,
-                color = Color.Gray
-            )
-        } else {
-            LazyColumn {
-                items(gameStatsList) { gameStat ->
-                    GameStatsItem(gameStat)
+        if (loading) {
+            CircularProgressIndicator(modifier = Modifier.align(Alignment.CenterHorizontally))
+        }else {
+            if (gameStatsList.isEmpty()) {
+                Text(
+                    text = "No game statistics available.",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = Color.Gray
+                )
+            } else {
+                LazyColumn {
+                    items(gameStatsList) { gameStat ->
+                        GameStatsItem(gameStat)
+                    }
                 }
             }
         }

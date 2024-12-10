@@ -2,6 +2,7 @@ package com.example.prototype_semesterproject
 
 import android.content.Context
 import android.opengl.GLSurfaceView
+import androidx.lifecycle.MutableLiveData
 
 class MyGLSurfaceView(context: Context) : GLSurfaceView(context) {
 

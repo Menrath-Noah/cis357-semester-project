@@ -1,10 +1,14 @@
 package com.example.prototype_semesterproject
 
+import android.graphics.Bitmap
+import android.graphics.Canvas
+import android.graphics.Paint
 import android.opengl.GLES20
 import android.opengl.GLSurfaceView
 import android.opengl.Matrix
 import android.os.SystemClock
 import androidx.annotation.RequiresApi
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.google.firebase.Firebase
@@ -66,6 +70,10 @@ class MyGLRenderer : GLSurfaceView.Renderer {
 
     private var isDateAscending = true
     private var isScoreAscending = true
+    val _loading = MutableLiveData<Boolean>(true)
+    val loading: LiveData<Boolean> get() = _loading
+
+
 
     override fun onSurfaceCreated(unused: GL10, config: EGLConfig) {
         // Set the background frame color
@@ -76,7 +84,6 @@ class MyGLRenderer : GLSurfaceView.Renderer {
         blocksArr.add(newBlock)
         blockCoords.add(randX)
         blocksArr.add(Square3())
-
     }
 
     fun spawn() {
@@ -92,7 +99,9 @@ class MyGLRenderer : GLSurfaceView.Renderer {
             spawn()
             _death.postValue(false)
         }
+
         GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT)
+
         Matrix.setLookAtM(
             viewMatrix,
             0,
@@ -256,8 +265,7 @@ class MyGLRenderer : GLSurfaceView.Renderer {
                                 var rando = Random.nextInt(20)
                                 println(rando)
                                 _death.postValue(true)
-                                val currentTime = SystemClock.uptimeMillis()
-                                _score.postValue((currentTime - gameStartTime) / 100)
+                                _score.postValue((SystemClock.uptimeMillis() - gameStartTime) / 100)
                                 _deathCounter.postValue(_deathCounter.value?.plus(1) ?: 1)
                                 saveGameStats()
                             }
@@ -305,12 +313,10 @@ class MyGLRenderer : GLSurfaceView.Renderer {
     )
 
     private fun saveGameStats() {
-
         val gameStats = GameStats(
             score = score.value!!,
             date = Timestamp.now()
         )
-
         val userId = auth.currentUser?.uid
         if (userId != null) {
             val myDB = Firebase.firestore
@@ -329,6 +335,7 @@ class MyGLRenderer : GLSurfaceView.Renderer {
 
 
     fun loadGameStats() {
+        val loading = mutableStateOf(true) // Add this to track loading stat
         val myDB = Firebase.firestore
         val userId = auth.currentUser?.uid
         if (userId != null) {
@@ -337,7 +344,6 @@ class MyGLRenderer : GLSurfaceView.Renderer {
                 .collection("gamestats")
                 .get()
                 .addOnSuccessListener { documents ->
-                    val statsList = mutableListOf<GameStats>()
                     documents.forEach { x ->
                         try {
                             val gameStats = x.toObject(GameStats::class.java)
@@ -348,6 +354,7 @@ class MyGLRenderer : GLSurfaceView.Renderer {
                         } catch (e: Exception) {
                             println("Error converting document: ${x.id}, ${e.message}")
                         }
+                        _loading.value = false
                     }
                 }
                 .addOnFailureListener { e ->

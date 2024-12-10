@@ -57,11 +57,9 @@ class MainActivity : ComponentActivity() {
     private lateinit var vm: MyGLRenderer
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        // Initialize Firebase
         FirebaseApp.initializeApp(this)
         sensorManagerModel = SensorManagerModel(this)
         vm = MyGLRenderer()
-        val auth = FirebaseAuth.getInstance()
         setContent {
             AppNavHost(
                 gameMessage = gameMessage,
