@@ -34,6 +34,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.google.firebase.auth.FirebaseAuth
 import java.text.SimpleDateFormat
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
@@ -42,6 +43,7 @@ import java.text.SimpleDateFormat
 fun GameStatsScreen(userId: String, vm:MyGLRenderer, navController:NavController) {
     val gameStatsList by vm.gameStatsList.observeAsState(emptyList())
     val loading by vm.loading.observeAsState(true)
+    val auth = FirebaseAuth.getInstance()
     // Load data
     LaunchedEffect(Unit) {
         vm.loadGameStats()
@@ -54,7 +56,7 @@ fun GameStatsScreen(userId: String, vm:MyGLRenderer, navController:NavController
         Text("Game Statistics", fontSize = 30.sp, style = MaterialTheme.typography.titleLarge)
 
         Text(
-            text = "User ID: $userId",
+            text = "User ID: ${auth.currentUser?.displayName}",
             style = MaterialTheme.typography.bodyMedium
         )
 

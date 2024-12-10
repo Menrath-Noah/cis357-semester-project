@@ -5,8 +5,10 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.userProfileChangeRequest
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 
 
 class AuthViewModel: ViewModel() {
@@ -53,6 +55,8 @@ class AuthViewModel: ViewModel() {
             .addOnSuccessListener {
                 _createAccountSuccess.postValue(true)
                 _createAccountError.postValue(null)
+                var changeName = userProfileChangeRequest { displayName = name }
+                auth.currentUser?.updateProfile(changeName)
                 onComplete(it.user!!.uid)
             }
             .addOnFailureListener { exception ->

@@ -26,8 +26,8 @@ fun AppNavHost(
                 navController = navController,
                 onLoginSuccess = {
                     // Navigate to game_config with the UID as an argument
-                    navController.navigate("game_config/$it")
-//                    navController.navigate("game_stats/$it")
+//                    navController.navigate("game_config/$it")
+                    navController.navigate("game_stats/$it")
                 }
             )
         }
