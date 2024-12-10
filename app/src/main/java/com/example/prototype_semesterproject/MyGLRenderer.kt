@@ -11,9 +11,6 @@ import com.google.firebase.Firebase
 import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.firestore
-import java.text.SimpleDateFormat
-import java.util.Calendar
-import java.util.Locale
 import javax.microedition.khronos.egl.EGLConfig
 import javax.microedition.khronos.opengles.GL10
 import kotlin.random.Random
@@ -67,6 +64,12 @@ class MyGLRenderer : GLSurfaceView.Renderer {
     private var isDateAscending = true
     private var isScoreAscending = true
 
+    var lastScore: Long = -1
+   // private val _death = MutableLiveData(false)
+    //private val deathState = _death.observeAsState(initial = false)
+    //private val _deathCounter = MutableLiveData(0)
+    //val deathCounter: LiveData<Int> get() = _deathCounter
+
     override fun onSurfaceCreated(unused: GL10, config: EGLConfig) {
         // Set the background frame color
         GLES20.glClearColor(1.0f, 1.0f, 1.0f, 1.0f)
@@ -89,8 +92,15 @@ class MyGLRenderer : GLSurfaceView.Renderer {
     @RequiresApi(35)
     override fun onDrawFrame(unused: GL10?) {
         if (_death.value == true) {
-            spawn()
-            _death.postValue(false)
+
+             isDateAscending = false
+            isScoreAscending = false
+
+            saveGameStats()
+
+
+
+         //   _death.postValue(false)
         }
         GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT)
         Matrix.setLookAtM(
@@ -246,33 +256,35 @@ class MyGLRenderer : GLSurfaceView.Renderer {
                 }
             }
         }
+if (death.value == false) {
+    for (block in blocksArr) {
+        when (block) {
+            is Square2 -> {
+                if (block.zVal <= 0) {
+                    if (block.xVal != null) {
+                        if (camX >= (block.xVal!! - .45) && camX <= (block.xVal!! + .45)) {
+                            var rando = Random.nextInt(20)
+                            println(rando)
+                            _death.postValue(true)
+                            val currentTime = SystemClock.uptimeMillis()
+                            _score.postValue((currentTime - gameStartTime) / 100)
+                            _deathCounter.postValue(_deathCounter.value?.plus(1) ?: 1)
+                            break
 
-        for (block in blocksArr) {
-            when (block) {
-                is Square2 -> {
-                    if (block.zVal <= 0) {
-                        if (block.xVal != null) {
-                            if (camX >= (block.xVal!! - .45) && camX <= (block.xVal!! + .45)) {
-                                var rando = Random.nextInt(20)
-                                println(rando)
-                                _death.postValue(true)
-                                val currentTime = SystemClock.uptimeMillis()
-                                _score.postValue((currentTime - gameStartTime) / 100)
-                                _deathCounter.postValue(_deathCounter.value?.plus(1) ?: 1)
-                                saveGameStats()
-                            }
+
                         }
                     }
-
                 }
 
-                is Triangle -> {
-                    println("Triangle")
-                }
+            }
+
+            is Triangle -> {
+                println("Triangle")
             }
         }
+    }
 
-
+}
 
         blocksArr.addAll(blocksArrTemp)
 
@@ -310,20 +322,25 @@ class MyGLRenderer : GLSurfaceView.Renderer {
             score = score.value!!,
             date = Timestamp.now()
         )
-
         val userId = auth.currentUser?.uid
         if (userId != null) {
             val myDB = Firebase.firestore
             val where2safe = myDB.collection("players").document(userId).collection("gamestats")
-            where2safe.add(gameStats)
-                .addOnSuccessListener {
-                    println("Game stats saved successfully.")
-                }
-                .addOnFailureListener { e ->
-                    println("Failed to save game stats: ${e.message}")
-                }
-        } else {
-            println("User ID is null, cannot save game stats.")
+
+            if (score.value != lastScore) {
+
+                where2safe.add(gameStats)
+                    .addOnSuccessListener {
+                        println("Game stats saved successfully.")
+                         lastScore= score.value!!
+
+            }
+                    .addOnFailureListener { e ->
+                        println("Failed to save game stats: ${e.message}")
+                    }
+            } else {
+                println("User ID is null, cannot save game stats.")
+            }
         }
     }
 

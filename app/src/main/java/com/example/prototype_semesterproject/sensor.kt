@@ -23,7 +23,10 @@ class SensorManagerModel(context: Context) : SensorEventListener {
             mSensorManager.registerListener(this, mAccelerometer, SensorManager.SENSOR_DELAY_NORMAL)
         }
     }
-
+//    fun stopSensors() {
+//        // Unregister sensor listeners
+//        mSensorManager.unregisterListener(sensorEventListener)
+//    }
     override fun onAccuracyChanged(sensor: Sensor, accuracy: Int) {}
 
     override fun onSensorChanged(event: SensorEvent) {

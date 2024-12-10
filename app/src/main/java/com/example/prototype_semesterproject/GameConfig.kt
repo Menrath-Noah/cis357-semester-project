@@ -1,10 +1,12 @@
 package com.example.prototype_semesterproject
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.navigation.NavHostController
 
 
 val _death = MutableLiveData(false)
@@ -14,12 +16,28 @@ val deathCounter: LiveData<Int> get() = _deathCounter
 
 @Composable
 fun GameConfig(
-    gameMessage: LiveData<String>,
     sensorManagerModel: SensorManagerModel,
-    uid: String
+    uid: String,
+    navController: NavHostController
 ) {
     val context = LocalContext.current
     val gLView = MyGLSurfaceView(context)
+    val deathState = death.observeAsState(initial = false) // Observe death LiveData
+
+    if (deathState.value) {
+        // Stop sensors and game processes
+       // sensorManagerModel//.stopSensors()
+        //gLView.releaseResources()
+
+        // Navigate to game_stats
+        navController.navigate("game_stats/$uid") {
+            popUpTo("game_config/$uid") { inclusive = true } // Remove game screen from back stack
+        }
+
+        // Reset death state to prevent repeated navigation score
+        // Reset death state to prevent repeated navigation
+       // _death.value = false
+    }
 
     sensorManagerModel.sensorData.observeForever { sensorValues ->
         sensorManagerModel.changeSensorData(sensorValues)
