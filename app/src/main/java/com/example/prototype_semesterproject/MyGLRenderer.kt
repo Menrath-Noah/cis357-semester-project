@@ -43,6 +43,7 @@ class MyGLRenderer : GLSurfaceView.Renderer {
     var lastTime6 = SystemClock.uptimeMillis()
     var lastTime7 = SystemClock.uptimeMillis()
     var lastTime8 = SystemClock.uptimeMillis()
+    var lastTime9 = SystemClock.uptimeMillis()
     var zVal = 5.0
     val timerBlockSpeed = 15L
     val timerBlockSpawn = 1000L
@@ -54,6 +55,7 @@ class MyGLRenderer : GLSurfaceView.Renderer {
 
     //        val phaseShiftCooldown = 6500L
     val phaseShiftCooldown = 100L
+    val statSaveCooldown= 20000L
 
     //        var blocksArr = mutableListOf<Square2>()
     var blocksArr = mutableListOf<Any>()
@@ -85,7 +87,10 @@ class MyGLRenderer : GLSurfaceView.Renderer {
     private var isScoreAscending = true
     var _loading = MutableLiveData<Boolean>(true)
     val loading: LiveData<Boolean> get() = _loading
-    var lastScore: Long = -1
+    var _lastScore = MutableLiveData<Int>(-1)
+    val lastScore: MutableLiveData<Int> get() = _lastScore
+    val time2 = SystemClock.uptimeMillis()
+    var lastScore2 = -1
     // private val _death = MutableLiveData(false)
     //private val deathState = _death.observeAsState(initial = false)
     //private val _deathCounter = MutableLiveData(0)
@@ -247,7 +252,7 @@ class MyGLRenderer : GLSurfaceView.Renderer {
 //            println(zData2.value)
         if (can_phaseshift) {
             if (zData2.value!! >= 3.5 || zData2.value!! <= -3.5) { // Fast pushing motion after a few numbers will be positive, Fast pulling motion after a few numbers will be negative
-                println(zData2.value)
+//                println(zData2.value)
                 if (zData2.value !in z2Arr) {
                     z2Arr.add(zData2.value!!)
 //                    println(z2Arr)
@@ -271,7 +276,7 @@ class MyGLRenderer : GLSurfaceView.Renderer {
                             if ((z2Arr.last() > 0) || (z2Arr.last() < 0)) {
                                 if (!stop_processing) {
 //                                        stop_processing = true
-                                    println("FORWARD PUSH\n")
+//                                    println("FORWARD PUSH\n")
                                     z2Arr.clear()
                                     for (block in blocksArr) {
                                         when (block) {
@@ -289,7 +294,7 @@ class MyGLRenderer : GLSurfaceView.Renderer {
                             } else if (z2Arr.last() < 0) {
                                 if (!stop_processing) {
 //                                        stop_processing = true
-                                    println("BACKWARD PUSH\n")
+//                                    println("BACKWARD PUSH\n")
                                     z2Arr.clear()
                                 }
                             }
@@ -520,8 +525,8 @@ class MyGLRenderer : GLSurfaceView.Renderer {
 //                                    if (camX >= (block.xVal!! - .35) && camX <= (block.xVal!! + .35)) {
                                     if (Math.abs(camX - block.xVal!!) <= 0.36) {
                                         if (-0.55 + camY <= block.heightVal) {
-                                            var rando = Random.nextInt(20)
-                                            println(rando)
+//                                            var rando = Random.nextInt(20)
+//                                            println(rando)
                                             _death.postValue(true)
                                             val currentTime = SystemClock.uptimeMillis()
                                             _score.postValue((currentTime - gameStartTime) / 100)
@@ -577,29 +582,38 @@ class MyGLRenderer : GLSurfaceView.Renderer {
 
     private fun saveGameStats() {
 
-        val gameStats = GameStats(
-            score = score.value!!,
-            date = Timestamp.now()
-        )
+            val gameStats = GameStats(
+                score = score.value!!,
+                date = Timestamp.now()
+            )
 
-        val userId = auth.currentUser?.uid
-        if (userId != null) {
-            val myDB = Firebase.firestore
-            val where2safe = myDB.collection("players").document(userId).collection("gamestats")
-            if (score.value != lastScore) {
-                where2safe.add(gameStats)
-                    .addOnSuccessListener {
-                        println("Game stats saved successfully.")
-                        lastScore = score.value!!
-                    }
-                    .addOnFailureListener { e ->
-                        println("Failed to save game stats: ${e.message}")
-                    }
+            val userId = auth.currentUser?.uid
+            if (userId != null) {
+                val myDB = Firebase.firestore
+                val where2safe = myDB.collection("players").document(userId).collection("gamestats")
+
+                if (score.value?.toInt() != lastScore2) {
+                    println("-----")
+                    println(score.value?.toInt())
+                    println(lastScore.value)
+                    println("-----")
+                    _lastScore.postValue(score.value!!.toInt())
+                    lastScore2 = score.value!!.toInt()
+//                    _lastScore.value = score.value!!.toInt()
+                    where2safe.add(gameStats)
+                        .addOnSuccessListener {
+                            println("Game stats saved successfully.")
+
+//
+                        }
+                        .addOnFailureListener { e ->
+                            println("Failed to save game stats: ${e.message}")
+                        }
+                }
             } else {
-                println("User ID is null, cannot save game stats.")
-            }
+                    println("User ID is null, cannot save game stats.")
+                }
         }
-    }
 
 
     fun loadGameStats() {
