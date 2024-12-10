@@ -212,7 +212,7 @@ internal class Triangle : BaseShape()
 */
 
 
-class Square2(var xVal: Double?= 0.0, var blockColor: String = "blue", var zVal: Double = 5.0) {
+class Square2(var xVal: Double?= 0.0, var blockColor: Int = 150, var zVal: Double = 5.0, var lengthVal: Double = 0.25, var heightVal: Double = 0.55, var widthVal: Double = 0.15) {
 
     private var mProgram: Int = 0
     private val vertexShaderCode =
@@ -243,17 +243,40 @@ class Square2(var xVal: Double?= 0.0, var blockColor: String = "blue", var zVal:
         0, 3, 7, 0, 7, 4,  // top side
         1, 2, 6, 1, 6, 5)  // Bottom face
     val COORDS_PER_VERTEX = 3
+    //        var squareCoords = floatArrayOf(
+//            -0.25f,  .55f, 0.0f,     // top left
+//            -0.25f, -.55f, 0.0f,     // bottom left
+//            0.25f, -.55f, 0.0f,      // bottom right
+//            0.25f,  .55f, 0.0f,      // top right
+//
+//            -0.25f,  .55f, -0.25f,
+//            -0.25f, -.55f, -0.25f,
+//            0.25f, -.55f, -0.25f,
+//            0.25f,  .55f, -0.25f
+//        )
     var squareCoords = floatArrayOf(
-        -0.25f,  .55f, 0.0f,     // top left
-        -0.25f, -.55f, 0.0f,     // bottom left
-        0.25f, -.55f, 0.0f,      // bottom right
-        0.25f,  .55f, 0.0f,      // top right
+        (-lengthVal).toFloat(), heightVal.toFloat(), 0.0f,     // top left
+        (-lengthVal).toFloat(), -.55f, 0.0f,                   // bottom left
+        lengthVal.toFloat(), -.55f, 0.0f,                      // bottom right
+        lengthVal.toFloat(), heightVal.toFloat(), 0.0f,        // top right
 
-        -0.25f,  .55f, -0.25f,
-        -0.25f, -.55f, -0.25f,
-        0.25f, -.55f, -0.25f,
-        0.25f,  .55f, -0.25f
+        (-lengthVal).toFloat(), heightVal.toFloat(), widthVal.toFloat(),
+        (-lengthVal).toFloat(), -.55f, widthVal.toFloat(),
+        lengthVal.toFloat(), -.55f, widthVal.toFloat(),
+        lengthVal.toFloat(), heightVal.toFloat(), widthVal.toFloat()
     )
+//        var squareCoords = floatArrayOf(
+//            (-lengthVal).toFloat(), .55f, 0.0f,     // top left
+//            (-lengthVal).toFloat(), -.55f, 0.0f,                   // bottom left
+//            lengthVal.toFloat(), -.55f, 0.0f,                      // bottom right
+//            lengthVal.toFloat(), .55f, 0.0f,        // top right
+//
+//            (-lengthVal).toFloat(), .55f, -0.25f,
+//            (-lengthVal).toFloat(), -.55f, -0.25f,
+//            lengthVal.toFloat(), -.55f, -0.25f,
+//            lengthVal.toFloat(), .55f, -0.25f
+//        )
+    //heightVal .2 to .9
 
     private var positionHandle: Int = 0
     private var mColorHandle: Int = 0
@@ -320,18 +343,13 @@ class Square2(var xVal: Double?= 0.0, var blockColor: String = "blue", var zVal:
                 vertexStride,
                 vertexBuffer
             )
+            var blueShade = blockColor.toFloat() / 255f
 
             // get handle to fragment shader's vColor member
             mColorHandle = GLES20.glGetUniformLocation(mProgram, "vColor").also { colorHandle ->
 
                 // Set color for drawing the triangle
-                var color = floatArrayOf(0.0f, 0.0f, 1.0f, 1.0f)
-                if (blockColor == "blue") {
-                    color = floatArrayOf(0.0f, 0.0f, 1.0f, 1.0f)
-                }
-                else if (blockColor == "pink") {
-                    color = floatArrayOf(1.0f, 0.0f, 0.5f, 1.0f)
-                }
+                var color = floatArrayOf(0.0f, 0.0f, .8f, 1.0f)
 
                 GLES20.glUniform4fv(colorHandle, 1, color, 0)
             }
@@ -375,9 +393,11 @@ class Square2(var xVal: Double?= 0.0, var blockColor: String = "blue", var zVal:
 }
 
 
+
 class Square3(var xVal: Double?= 0.0, var blockColor: String = "black", var zVal: Double = 3.0, var yVal: Double = 0.0) {
 
     private var mProgram: Int = 0
+    var color = floatArrayOf(0.0f, 0.0f, 0.0f, 1.0f)
     private val vertexShaderCode =
     // This matrix member variable provides a hook to manipulate
         // the coordinates of the objects that use this vertex shader
@@ -409,17 +429,29 @@ class Square3(var xVal: Double?= 0.0, var blockColor: String = "black", var zVal
         0, 3, 7, 0, 7, 4,  // top side
         1, 2, 6, 1, 6, 5)  // Bottom face
     val COORDS_PER_VERTEX = 3
+    //        var squareCoords = floatArrayOf(
+//            -0.15f,  -.2f, 0.0f,     // top left
+//            -0.15f, -.55f, 0.0f,     // bottom left
+//            0.15f, -.55f, 0.0f,      // bottom right
+//            0.15f,  -.2f, 0.0f,      // top right
+//
+//            -0.15f,  -.2f, -0.25f,
+//            -0.15f, -.55f, -0.25f,
+//            0.15f, -.55f, -0.25f,
+//            0.15f,  -.2f, -0.25f
+//        )
     var squareCoords = floatArrayOf(
-        -0.15f,  -.2f, 0.0f,     // top left
-        -0.15f, -.55f, 0.0f,     // bottom left
-        0.15f, -.55f, 0.0f,      // bottom right
-        0.15f,  -.2f, 0.0f,      // top right
+        -0.10f,  -.35f, 0.0f,     // top left
+        -0.10f, -.55f, 0.0f,     // bottom left
+        0.10f, -.55f, 0.0f,      // bottom right
+        0.10f,  -.35f, 0.0f,      // top right
 
-        -0.15f,  -.2f, -0.25f,
-        -0.15f, -.55f, -0.25f,
-        0.15f, -.55f, -0.25f,
-        0.15f,  -.2f, -0.25f
+        -0.10f,  -.35f, -0.1f,
+        -0.10f, -.55f, -0.1f,
+        0.10f, -.55f, -0.1f,
+        0.10f,  -.35f, -0.1f
     )
+
 
     private var positionHandle: Int = 0
     private var mColorHandle: Int = 0
@@ -491,9 +523,13 @@ class Square3(var xVal: Double?= 0.0, var blockColor: String = "black", var zVal
             mColorHandle = GLES20.glGetUniformLocation(mProgram, "vColor").also { colorHandle ->
 
                 // Set color for drawing the triangle
-                var color = floatArrayOf(0.0f, 0.0f, 0.0f, 1.0f)
+
+//                    color = floatArrayOf(0f, 0f, 0f, 1f)
                 if (blockColor == "black") {
-                    color = floatArrayOf(0.0f, 0.0f, 0.0f, 1.0f)
+                    color = floatArrayOf(0f, 0f, 0f, 1f)
+                }
+                else if (blockColor == "transparent") {
+                    color = floatArrayOf(0f, 0f, 0f, .15f)
                 }
 
                 GLES20.glUniform4fv(colorHandle, 1, color, 0)
