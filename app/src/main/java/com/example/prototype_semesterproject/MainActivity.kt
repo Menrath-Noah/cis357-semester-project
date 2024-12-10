@@ -120,7 +120,7 @@ class MainActivity : ComponentActivity() {
         val phaseShiftDataCooldown = 1000L
         val pushSensing = 5000L
 //        val phaseShiftCooldown = 6500L
-        val phaseShiftCooldown = 6L
+        val phaseShiftCooldown = 100L
 //        var blocksArr = mutableListOf<Square2>()
         var blocksArr = mutableListOf<Any>()
         var blocksArrTemp = mutableListOf<Any>()
@@ -272,10 +272,10 @@ class MainActivity : ComponentActivity() {
 
             }
 
-
+//            println(zData2.value)
             if (can_phaseshift) {
-                if (zData2.value!! >= 2.5 || zData2.value!! <= -2.5) { // Fast pushing motion after a few numbers will be positive, Fast pulling motion after a few numbers will be negative
-//                println(zData2.value)
+                if (zData2.value!! >= 3.5 || zData2.value!! <= -3.5) { // Fast pushing motion after a few numbers will be positive, Fast pulling motion after a few numbers will be negative
+                println(zData2.value)
                 if (zData2.value !in z2Arr){
                     z2Arr.add(zData2.value!!)
 //                    println(z2Arr)
@@ -296,9 +296,9 @@ class MainActivity : ComponentActivity() {
 
                         if (positive && negative) {
                             if (z2Arr.isNotEmpty()) {
-                                if (z2Arr.last() > 0) {
+                                if ((z2Arr.last() > 0) || (z2Arr.last() < 0)) {
                                     if (!stop_processing) {
-                                        stop_processing = true
+//                                        stop_processing = true
                                         println("FORWARD PUSH\n")
                                         z2Arr.clear()
                                         for (block in blocksArr) {
@@ -316,7 +316,7 @@ class MainActivity : ComponentActivity() {
                                     }
                                 } else if (z2Arr.last() < 0) {
                                     if (!stop_processing) {
-                                        stop_processing = true
+//                                        stop_processing = true
                                         println("BACKWARD PUSH\n")
                                         z2Arr.clear()
                                     }
@@ -368,7 +368,7 @@ class MainActivity : ComponentActivity() {
 //                lastTime5 = time
 //            }
 
-            if (horizontalData.value!! >= 1) {
+            if (horizontalData.value!! >= 1.5) { // move left
                 camX -= .05
                 for (block in blocksArr) {
                     when (block) {
@@ -378,7 +378,7 @@ class MainActivity : ComponentActivity() {
                     }
                 }
             }
-            if (horizontalData.value!! <= -2) {
+            if (horizontalData.value!! <= -1.5) { // move right
                 camX += .05
                 for (block in blocksArr) {
                     when (block) {
@@ -388,11 +388,12 @@ class MainActivity : ComponentActivity() {
                     }
                 }
             }
+            println(gravityC.value)
 //            if ((verticalData.value!! > 0.0 && verticalData.value!! <= 2.0) || playerJump) {
 //            if ((zData.value!! <= -5.0) || playerJump) {
-            if ((gravityB.value!! < 9.25 && gravityC.value!! < -2.5) || playerJump) {
+            if ((gravityB.value!! < 10.0 && gravityC.value!! < -.5) || playerJump) {
 
-                if ((camY > 3.5) || playerJumpDown) {
+                if ((camY > 2.5) || playerJumpDown) {
                     camY -= .05
                     playerJumpDown = true
                     if (camY <= 0.0) {
@@ -541,9 +542,10 @@ class MainActivity : ComponentActivity() {
                 when (block) {
                     is Square2 -> {
                         if (square3.blockColor != "transparent") {
-                            if (block.zVal <= 0) {
+                            if (block.zVal <= 0.0) {
                                 if (block.xVal != null) {
-                                    if (camX >= (block.xVal!! - .45) && camX <= (block.xVal!! + .45)) {
+//                                    if (camX >= (block.xVal!! - .35) && camX <= (block.xVal!! + .35)) {
+                                    if (Math.abs(camX - block.xVal!!) <= 0.36) {
                                         if (-0.55+camY <= block.heightVal) {
 //                                            var rando = Random.nextInt(20)
 ////                                    println(rando)
@@ -809,17 +811,29 @@ class MainActivity : ComponentActivity() {
             0, 3, 7, 0, 7, 4,  // top side
             1, 2, 6, 1, 6, 5)  // Bottom face
         val COORDS_PER_VERTEX = 3
+//        var squareCoords = floatArrayOf(
+//            -0.15f,  -.2f, 0.0f,     // top left
+//            -0.15f, -.55f, 0.0f,     // bottom left
+//            0.15f, -.55f, 0.0f,      // bottom right
+//            0.15f,  -.2f, 0.0f,      // top right
+//
+//            -0.15f,  -.2f, -0.25f,
+//            -0.15f, -.55f, -0.25f,
+//            0.15f, -.55f, -0.25f,
+//            0.15f,  -.2f, -0.25f
+//        )
         var squareCoords = floatArrayOf(
-            -0.15f,  -.2f, 0.0f,     // top left
-            -0.15f, -.55f, 0.0f,     // bottom left
-            0.15f, -.55f, 0.0f,      // bottom right
-            0.15f,  -.2f, 0.0f,      // top right
+            -0.10f,  -.35f, 0.0f,     // top left
+            -0.10f, -.55f, 0.0f,     // bottom left
+            0.10f, -.55f, 0.0f,      // bottom right
+            0.10f,  -.35f, 0.0f,      // top right
 
-            -0.15f,  -.2f, -0.25f,
-            -0.15f, -.55f, -0.25f,
-            0.15f, -.55f, -0.25f,
-            0.15f,  -.2f, -0.25f
+            -0.10f,  -.35f, -0.1f,
+            -0.10f, -.55f, -0.1f,
+            0.10f, -.55f, -0.1f,
+            0.10f,  -.35f, -0.1f
         )
+
 
         private var positionHandle: Int = 0
         private var mColorHandle: Int = 0
