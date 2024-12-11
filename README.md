@@ -145,7 +145,7 @@ apply(plugin = "com.google.gms.google-services")
 
 </manifest>
 ```
-### 2. Basic App
+## 2. Basic App
 ---
 Instantiating  sensor manager, opengl and vm in MainActivity:
 ```kotlin
@@ -167,7 +167,7 @@ class MainActivity : ComponentActivity() {
 
 }
 ```
-### 3. Implementing Sensors and Models
+## 3. Implementing Sensors and Models
 
 #### Motion Sensor modules:
 
@@ -267,7 +267,7 @@ fun changeSensorData(newSensorData: FloatArray, sensor_type: Int?=Sensor.TYPE_AC
 ```
 > 'changeSensorData' handles updating individual motion sensing variables per motion event type.
 
-### 4. Implementing Open Graphics Library 
+## 4. Implementing Open Graphics Library 
 
 
 #### OpenGL ES modules:
@@ -352,7 +352,7 @@ class MyGLRenderer : GLSurfaceView.Renderer {
     }
 }
 ```
-#### 5. Handling Data in FireStore
+## 5. Handling Data in FireStore
 ```kotlin
 data class GameStats(
         var score: Long = 0,
@@ -431,7 +431,7 @@ data class GameStats(
 ```
 > 'loadGameStats' function is called when the player wants to view their statistics. It calls the current player's game data from FireStore and loads the data into a list. It is automatically sorted by date.
 
-#### 6. Collision Detection
+## 6. Collision Detection
 
 ```kotlin
 if (death.value == false) {
