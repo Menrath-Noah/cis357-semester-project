@@ -631,10 +631,8 @@ class MyGLRenderer : GLSurfaceView.Renderer {
                             println("Error converting document: ${x.id}, ${e.message}")
                         }
                         _loading.value = false
-                    //++++score
                     }
-                    _gameStatsList.value?.sortedBy { it.date }
-
+                    _gameStatsList.value = _gameStatsList.value?.sortedByDescending { it.date }
                 }
                 .addOnFailureListener { e ->
                     println("Error loading game stats: ${e.message}")

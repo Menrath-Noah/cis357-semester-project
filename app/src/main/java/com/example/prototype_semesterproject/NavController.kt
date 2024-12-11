@@ -65,7 +65,8 @@ fun AppNavHost(
             it.arguments?.getString("uid")?.let { uid ->
                 MainScreen(
                     uid = uid,
-                    navController = navController
+                    navController = navController,
+                    vm = vm
                 )
             }
         }
