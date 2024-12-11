@@ -4,7 +4,7 @@ by Dennis Eisele, Noah Menrath & Stephen Robinson
 
 ## Overview
 ---
-Cubeshake is adapted from the imfamous game cubefield with a fresh twist! Instead of using keybooard input on a pc, Cubeshake enables mobile android users to shake there phone to get past obstacles. If you would like to make a similar application please follow our guidelines below!
+Cubeshake is adapted from the imfamous game cubefield with a fresh twist! Instead of using keybooard input on a pc, Cubeshake enables mobile android users to shake there phone to get past obstacles. If you would like to make a similar application please follow our code snipppets and captions below to supplement your current understanding of mobile app development in Android Studio .
 
 ## 1. Getting Started with Environment Setup
 ---
@@ -427,6 +427,14 @@ data class GameStats(
 > 'loadGameStats' function is called when the player wants to view their statistics. It calls the current player's game data from FireStore and loads the data into a list. It is automatically sorted by date.
 
 ## Conclusion 
+Thank you for completing our Cubeshake app tutorial! We hope you found this guide informative and helpful in understanding how to develop and deploy a mobile app using Android Studio and Firebase. 
+
+If you need further assistance or have questions about any part of the tutorial, please explore our GitHub repository [link](https://github.com/Menrath-Noah/cis357-semester-project/tree/main), watch our [video walkthroughs]( https://youtu.be/yRsFyAJK6PE), or contact us at:
+
+robinss3@mail.gvsu.edu
+eiseled@mail.gvsu.edu
+menrathn@mail.gvsu.edu
 
 
+We're always here to help! Keep developing and good luck with Cubeshake!
 
