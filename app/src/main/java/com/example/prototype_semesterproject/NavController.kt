@@ -41,7 +41,6 @@ fun AppNavHost(
         composable("game_config/{uid}") {
             it.arguments?.getString("uid")?.let { uid ->
                 GameConfig(
-                    gameMessage = gameMessage,
                     sensorManagerModel = sensorManagerModel,
                     uid = uid,
                     navController = navController
