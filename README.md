@@ -2,8 +2,6 @@
 
 ---
 
-> "Noting here that i have access to the repository and the invite was valid" - Stephen 10:00 pm EDT
-
 #### Motion Sensor modules:
 ```kotlin
 import android.content.Context
@@ -116,3 +114,210 @@ fun changeSensorData(newSensorData: FloatArray, sensor_type: Int?=Sensor.TYPE_AC
 
 ```
 > 'changeSensorData' handles updating individual motion sensing variables per motion event type.
+
+---
+---
+
+---
+MyGLSurfaceView:
+```kotlin
+class MyGLSurfaceView(context: Context) : GLSurfaceView(context) {
+
+    private val renderer: MyGLRenderer
+
+    init {
+
+        // Create an OpenGL ES 2.0 context
+        setEGLContextClientVersion(2)
+
+        renderer = MyGLRenderer()
+
+        // Set the Renderer for drawing on the GLSurfaceView
+        setRenderer(renderer)
+
+        renderMode = RENDERMODE_CONTINUOUSLY
+
+    }
+}
+```
+---
+MyGLRenderer class:
+```kotlin
+class MyGLRenderer : GLSurfaceView.Renderer {
+    override fun onSurfaceCreated(unused: GL10, config: EGLConfig) {
+        GLES20.glClearColor(220F, 180F, 255F, 1.0f)
+        GLES20.glEnable(GLES20.GL_BLEND)
+        GLES20.glBlendFunc(GLES20.GL_SRC_ALPHA, GLES20.GL_ONE_MINUS_SRC_ALPHA)
+    }
+
+    @RequiresApi(35)
+    override fun onDrawFrame(unused: GL10?) {
+        if (horizontalData0.value!! >= 1.5) { // move left
+            camX -= .05
+            for (block in blocksArr) {
+                when (block) {
+                    is Square3 -> {
+                        block.xVal = camX
+                    }
+                }
+            }
+        }
+        if (horizontalData0.value!! <= -1.5) { // move right
+            camX += .05
+            for (block in blocksArr) {
+                when (block) {
+                    is Square3 -> {
+                        block.xVal = camX
+                    }
+                }
+            }
+        }
+    }
+    override fun onSurfaceChanged(unused: GL10, width: Int, height: Int) {
+        GLES20.glViewport(0, 0, width, height)
+        GLES20.glViewport(0, 0, width, height)
+
+        val ratio: Float = width.toFloat() / height.toFloat()
+
+        Matrix.frustumM(projectionMatrix, 0, -ratio, ratio, -1f, 1f, 0.5f, 35.0f)
+
+    }
+}
+```
+---
+project build.gradle.kts:
+```kotlin
+// Top-level build file where you can add configuration options common to all sub-projects/modules.
+plugins {
+    alias(libs.plugins.android.application) apply false
+    alias(libs.plugins.kotlin.android) apply false
+
+}
+buildscript {
+    dependencies {
+        classpath("com.google.gms:google-services:4.3.15")
+    }
+}
+```
+
+app build.gradle.kts:
+```kotlin
+plugins {
+    alias(libs.plugins.android.application)
+    alias(libs.plugins.kotlin.android)
+
+}
+
+android {
+    namespace = "com.example.prototype_semesterproject"
+    compileSdk = 35
+
+    defaultConfig {
+        applicationId = "com.example.prototype_semesterproject"
+        minSdk = 24
+        targetSdk = 35
+        versionCode = 1
+        versionName = "1.0"
+
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        vectorDrawables {
+            useSupportLibrary = true
+        }
+    }
+
+    buildTypes {
+        release {
+            isMinifyEnabled = false
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
+        }
+    }
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_1_8
+        targetCompatibility = JavaVersion.VERSION_1_8
+    }
+    kotlinOptions {
+        jvmTarget = "1.8"
+    }
+    buildFeatures {
+        compose = true
+    }
+    composeOptions {
+        kotlinCompilerExtensionVersion = "1.5.1"
+    }
+    packaging {
+        resources {
+            excludes += "/META-INF/{AL2.0,LGPL2.1}"
+        }
+    }
+}
+
+dependencies {
+    implementation(platform("com.google.firebase:firebase-bom:31.0.0"))
+    //implementation("com.google.firebase:firebase-auth-ktx")
+    implementation(libs.androidx.core.ktx)
+    implementation(libs.androidx.lifecycle.runtime.ktx)
+    implementation(libs.androidx.activity.compose)
+    implementation(platform(libs.androidx.compose.bom))
+    implementation(libs.androidx.ui)
+    implementation(libs.androidx.ui.graphics)
+    implementation(libs.androidx.ui.tooling.preview)
+    implementation(libs.androidx.material3)
+    implementation(libs.androidx.runtime.livedata)
+    implementation(libs.androidx.navigation.runtime.ktx)
+    implementation(libs.androidx.navigation.compose)
+    implementation(libs.firebase.auth.ktx)
+    implementation(libs.firebase.firestore.ktx)
+    testImplementation(libs.junit)
+    androidTestImplementation(libs.androidx.junit)
+    androidTestImplementation(libs.androidx.espresso.core)
+    androidTestImplementation(platform(libs.androidx.compose.bom))
+    androidTestImplementation(libs.androidx.ui.test.junit4)
+    debugImplementation(libs.androidx.ui.tooling)
+    debugImplementation(libs.androidx.ui.test.manifest)
+    implementation(libs.firebase.auth.ktx)
+    testImplementation(libs.junit)
+    androidTestImplementation(libs.androidx.junit)
+    androidTestImplementation(libs.androidx.espresso.core)
+    androidTestImplementation(platform(libs.androidx.compose.bom))
+    androidTestImplementation(libs.androidx.ui.test.junit4)
+    debugImplementation(libs.androidx.ui.tooling)
+    debugImplementation(libs.androidx.ui.test.manifest)
+
+
+}
+apply(plugin = "com.google.gms.google-services")
+```
+---
+AndroidManifest.xml:
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <application
+        android:allowBackup="true"
+        android:dataExtractionRules="@xml/data_extraction_rules"
+        android:fullBackupContent="@xml/backup_rules"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.OpenGLAttempt"
+        tools:targetApi="31">
+        <activity
+            android:name=".MainActivity"
+            android:exported="true"
+            android:label="@string/app_name"
+            android:theme="@style/Theme.OpenGLAttempt">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+    </application>
+
+</manifest>
+```
