@@ -21,15 +21,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
-import com.google.firebase.Firebase
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.userProfileChangeRequest
-import com.google.firebase.firestore.firestore
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.tasks.await
 
 @Composable
 fun Login(
@@ -40,7 +32,7 @@ fun Login(
 )
 {
     var username by remember { mutableStateOf("test@test.com") }
-    var password by remember { mutableStateOf("123321") }
+    var password by remember { mutableStateOf("123456") }
     val authSuccess = vm.authSuccess.observeAsState()
     val authError = vm.authError.observeAsState()
 

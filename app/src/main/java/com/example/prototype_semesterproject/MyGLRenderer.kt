@@ -1,23 +1,16 @@
 package com.example.prototype_semesterproject
 
-import android.graphics.Bitmap
-import android.graphics.Canvas
-import android.graphics.Paint
 import android.opengl.GLES20
 import android.opengl.GLSurfaceView
 import android.opengl.Matrix
 import android.os.SystemClock
 import androidx.annotation.RequiresApi
-import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.google.firebase.Firebase
 import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.firestore
-import java.text.SimpleDateFormat
-import java.util.Calendar
-import java.util.Locale
 import javax.microedition.khronos.egl.EGLConfig
 import javax.microedition.khronos.opengles.GL10
 import kotlin.random.Random
@@ -638,7 +631,10 @@ class MyGLRenderer : GLSurfaceView.Renderer {
                             println("Error converting document: ${x.id}, ${e.message}")
                         }
                         _loading.value = false
+                    //++++score
                     }
+                    _gameStatsList.value?.sortedBy { it.date }
+
                 }
                 .addOnFailureListener { e ->
                     println("Error loading game stats: ${e.message}")
