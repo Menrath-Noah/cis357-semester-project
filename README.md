@@ -347,7 +347,7 @@ class MyGLRenderer : GLSurfaceView.Renderer {
     }
 }
 ```
-#### 5. Save Data 
+#### 5. Handling Data in FireStore
 ```kotlin
 data class GameStats(
         var score: Long = 0,
@@ -388,7 +388,10 @@ data class GameStats(
                     println("User ID is null, cannot save game stats.")
                 }
         }
-
+```
+>'saveGameStats' function takes the player scores and then connects to FireStore to save the player score stats in the database.
+---
+```kotlin
 
     fun loadGameStats() {
         val myDB = Firebase.firestore
@@ -421,6 +424,7 @@ data class GameStats(
         }
     }
 ```
+> 'loadGameStats' function is called when the player wants to view their statistics. It calls the current player's game data from FireStore and loads the data into a list. It is automatically sorted by date.
 
 ## Conclusion 
 
