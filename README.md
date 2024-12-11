@@ -347,9 +347,7 @@ class MyGLRenderer : GLSurfaceView.Renderer {
     }
 }
 ```
----
----
----
+#### 5. Save Data 
 ```kotlin
 data class GameStats(
         var score: Long = 0,
@@ -423,3 +421,8 @@ data class GameStats(
         }
     }
 ```
+
+## Conclusion 
+
+
+
