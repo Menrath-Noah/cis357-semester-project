@@ -84,10 +84,6 @@ class MyGLRenderer : GLSurfaceView.Renderer {
     val lastScore: MutableLiveData<Int> get() = _lastScore
     val time2 = SystemClock.uptimeMillis()
     var lastScore2 = -1
-    // private val _death = MutableLiveData(false)
-    //private val deathState = _death.observeAsState(initial = false)
-    //private val _deathCounter = MutableLiveData(0)
-    //val deathCounter: LiveData<Int> get() = _deathCounter
 
 
     override fun onSurfaceCreated(unused: GL10, config: EGLConfig) {
@@ -108,18 +104,8 @@ class MyGLRenderer : GLSurfaceView.Renderer {
         gameStartTime = SystemClock.uptimeMillis()
         GLES20.glClearColor(220F, 180F, 255F, 1.0f)
 
-//            var randRTX = Random.nextDouble(-5.0,5.0)
-//            var newBlockRT = Square2(randRTX, "pink")
-//            rotatingBlocksArr.add(newBlockRT)
-        //blocksArr.add(Triangle(0.0))
     }
 
-    fun spawn() {
-        var randR = Random.nextFloat()
-        var randG = Random.nextFloat()
-        var randB = Random.nextFloat()
-//        GLES20.glClearColor(randR, randG, randB, 1.0f)
-    }
 
     @RequiresApi(35)
     override fun onDrawFrame(unused: GL10?) {
@@ -229,15 +215,6 @@ class MyGLRenderer : GLSurfaceView.Renderer {
 
             }
         }
-//            if (phaseShiftTimer)
-
-
-//            println(zData0.value!!)
-
-//            println(gravityC.value)
-//            if (gravityB.value!! < 8.5 && gravityC.value!! < -2.5) {
-//                println("LOLOL")
-//            }
 
 
         if (time - lastTime8 >= pushSensing) {
@@ -299,19 +276,7 @@ class MyGLRenderer : GLSurfaceView.Renderer {
                     } else {
                         z2Arr.clear()
                     }
-//                    var total_val = 0.0
-//                    for (num in z2Arr) {
-//                        total_val += num
-//                    }
-//                    if (total_val < 0) {
-//                        println(z2Arr)
-//                        println("FORWARD PUSH\n")
-//                    }
-//                    else if (total_val > 0) {
-//                        println(z2Arr)
-//                        println("BACKWARDS PUSH\n")
-//                    }
-//                    z2Arr.clear()
+
                 }
 
             }
@@ -335,12 +300,7 @@ class MyGLRenderer : GLSurfaceView.Renderer {
             }
         }
 
-//            if (time - lastTime5 >= timerRTBlockSpawn) {
-//                var randX = Random.nextDouble(-3.0, 3.0)
-//                var newRTBlock = Square2(randX, "pink")
-//                rotatingBlocksArr.add(newRTBlock)
-//                lastTime5 = time
-//            }
+
 
         if (horizontalData0.value!! >= 1.5) { // move left
             camX -= .05
@@ -362,9 +322,7 @@ class MyGLRenderer : GLSurfaceView.Renderer {
                 }
             }
         }
-//        println(gravityC.value)
-//            if ((verticalData0.value!! > 0.0 && verticalData0.value!! <= 2.0) || playerJump) {
-//            if ((zData0.value!! <= -5.0) || playerJump) {
+
         if ((gravityB.value!! < 10.0 && gravityC.value!! < -3.5) || playerJump) {
 
             if ((camY > 2.5) || playerJumpDown) {
@@ -388,56 +346,6 @@ class MyGLRenderer : GLSurfaceView.Renderer {
             }
         }
 
-//            if ((zData0.value!! >= 7.5)) {
-//                for (block in blocksArr) {
-//                    when (block) {
-//                        is Square3 -> {
-//                            if (phaseShift == false) {
-//                                block.blockColor = "transparent"
-//                                phaseShift = true
-//                                phaseShiftTimer = SystemClock.uptimeMillis()
-//                            }
-//                        }
-//                    }
-//
-//                }
-//            }
-        /* ROTATING MATRIX - IN PROGRESS
-        if (rotatingBlocksArr.isNotEmpty()) {
-            for (rtBlock in rotatingBlocksArr) {
-
-                if (time - lastTime4 >= timerBlockSpeed || timerYes4) {
-                    println("HHEHEHEE")
-                    rtBlock.zVal -= .05
-                    lastTime4 = time
-                    timerYes4 = true
-                }
-                if (rtBlock.zVal <= 0) {
-                    println("ZVAL: ${rtBlock.zVal}")
-                    delBlocksArr.add(rtBlock)
-                }
-
-                Matrix.setIdentityM(shiftMatrix, 0)
-                val scratch = FloatArray(16)
-
-                // Create a rotation transformation for the triangle
-                val timeWow = SystemClock.uptimeMillis() % 4000L
-                val angle = 0.090f * timeWow.toInt()
-                Matrix.setRotateM(rotationMatrix, 0, angle, 0f, 0f, -1.0f)
-
-                // Combine the rotation matrix with the projection and camera view
-                // Note that the vPMatrix factor *must be first* in order
-                // for the matrix multiplication product to be correct.
-
-                rtBlock.xVal?.let { Matrix.translateM(shiftMatrix, 0, it.toFloat(), .25f, -rtBlock.zVal.toFloat()) }
-                Matrix.multiplyMM(vPMatrix, 0, projectionMatrix, 0, shiftMatrix, 0)
-                Matrix.multiplyMM(scratch, 0, vPMatrix, 0, rotationMatrix, 0)
-
-                // Draw triangle
-                rtBlock.draw(scratch)
-                }
-        }
-         */
 
         for (block in blocksArr) {
             when (block) {
@@ -508,8 +416,7 @@ class MyGLRenderer : GLSurfaceView.Renderer {
                 }
             }
         }
-//            println(zData0.value)
-//            println(verticalData0.value)
+
 
         if (death.value == false) {
             val square3 = blocksArr.find { it is Square3 } as Square3

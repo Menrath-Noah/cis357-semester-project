@@ -18,16 +18,14 @@ fun AppNavHost(
 ) {
     NavHost(
         navController = navController,
-        startDestination = "login",//"game_config/{uid}",
+        startDestination = "login",
         modifier = modifier
     ) {
         composable("login") {
             Login(
                 navController = navController,
                 onLoginSuccess = {
-                    // Navigate to game_config with the UID as an argument
-//                    navController.navigate("game_config/$it")
-//                    navController.navigate("game_stats/$it")
+                    // Navigate to main_screen with the UID as an argument
                     navController.navigate("main_screen/$it")
                 }
             )
@@ -52,8 +50,6 @@ fun AppNavHost(
         composable("game_stats/{uid}") {
             it.arguments?.getString("uid")?.let { uid ->
                 GameStatsScreen(
-                    //gameMessage = gameMessage,
-                    //sensorManagerModel = sensorManagerModel,
                     vm = vm,
                     userId = uid,
                     navController = navController
