@@ -34,8 +34,8 @@ fun Login(
     onLoginSuccess: (String) -> Unit
 )
 {
-    var username by remember { mutableStateOf("test@test.com") }
-    var password by remember { mutableStateOf("123456") }
+    var username by remember { mutableStateOf("noodle@gmail.com") }
+    var password by remember { mutableStateOf("123321") }
     val authSuccess = vm.authSuccess.observeAsState()
     val authError = vm.authError.observeAsState()
 
