@@ -15,7 +15,7 @@ import androidx.navigation.NavHostController
 
 
 @Composable
-fun mainScreen(
+fun MainScreen(
     uid: String,
     navController: NavHostController
 ) {
@@ -31,21 +31,21 @@ fun mainScreen(
         Button(onClick = {
             _death.postValue(false)
             navController.navigate("game_config/$uid")
-
         }) {
-
             Text("Play Game")
         }
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        Button(onClick = { navController.navigate("game_stats/$uid") }) {
+        Button(onClick = { navController.navigate("game_stats/$uid") }
+        ) {
             Text("View Stats")
         }
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        Button(onClick = { navController.navigate("login") }) {
+        Button(onClick = { navController.navigate("login") }
+        ) {
             Text("Logout")
         }
     }

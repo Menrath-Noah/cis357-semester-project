@@ -63,7 +63,7 @@ fun AppNavHost(
         // Main Screen Route
         composable("main_screen/{uid}") {
             it.arguments?.getString("uid")?.let { uid ->
-                mainScreen(
+                MainScreen(
                     uid = uid,
                     navController = navController
                 )

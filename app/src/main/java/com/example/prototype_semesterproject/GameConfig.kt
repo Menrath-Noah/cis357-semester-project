@@ -38,9 +38,9 @@ fun GameConfig(
         if (!routed) {
             routed = true
             navController.navigate("game_stats/$uid") {
-                popUpTo("game_config/$uid") {
-                    inclusive = true
-                } // Remove game screen from back stack
+//                popUpTo("game_config/$uid") {
+//                    inclusive = true
+//                } // Remove game screen from back stack
             }
         }
 

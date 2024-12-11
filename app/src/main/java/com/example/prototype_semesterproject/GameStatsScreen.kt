@@ -57,7 +57,7 @@ fun GameStatsScreen(userId: String, vm:MyGLRenderer, navController:NavController
         Text("Game Statistics", fontSize = 30.sp, style = MaterialTheme.typography.titleLarge)
 
         Text(
-            text = "User: ${auth.currentUser?.displayName}",
+            text = "User: $userId",
             style = MaterialTheme.typography.bodyMedium
         )
 
