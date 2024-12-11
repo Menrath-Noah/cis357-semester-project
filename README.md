@@ -292,6 +292,7 @@ apply(plugin = "com.google.gms.google-services")
 ```
 ---
 AndroidManifest.xml:
+```kotlin
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
@@ -320,4 +321,25 @@ AndroidManifest.xml:
     </application>
 
 </manifest>
+```
+---
+Instantiating  sensor manager, opengl and vm in MainActivity:
+```kotlin
+class MainActivity : ComponentActivity() {
+    private lateinit var sensorManagerModel: SensorManagerModel
+    private lateinit var vm: MyGLRenderer
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        FirebaseApp.initializeApp(this)
+        sensorManagerModel = SensorManagerModel(this)
+        vm = MyGLRenderer()
+        setContent {
+            AppNavHost(
+                sensorManagerModel = sensorManagerModel,
+                vm = vm
+            )
+        }
+    }
+
+}
 ```
