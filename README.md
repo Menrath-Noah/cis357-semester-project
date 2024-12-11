@@ -347,3 +347,79 @@ class MyGLRenderer : GLSurfaceView.Renderer {
     }
 }
 ```
+---
+---
+---
+```kotlin
+data class GameStats(
+        var score: Long = 0,
+        val date: Timestamp = Timestamp.now()
+    )
+
+    private fun saveGameStats() {
+
+            val gameStats = GameStats(
+                score = score.value!!,
+                date = Timestamp.now()
+            )
+
+            val userId = auth.currentUser?.uid
+            if (userId != null) {
+                val myDB = Firebase.firestore
+                val where2safe = myDB.collection("players").document(userId).collection("gamestats")
+
+                if (score.value?.toInt() != lastScore2) {
+                    println("-----")
+                    println(score.value?.toInt())
+                    println(lastScore.value)
+                    println("-----")
+                    _lastScore.postValue(score.value!!.toInt())
+                    lastScore2 = score.value!!.toInt()
+//                    _lastScore.value = score.value!!.toInt()
+                    where2safe.add(gameStats)
+                        .addOnSuccessListener {
+                            println("Game stats saved successfully.")
+
+//
+                        }
+                        .addOnFailureListener { e ->
+                            println("Failed to save game stats: ${e.message}")
+                        }
+                }
+            } else {
+                    println("User ID is null, cannot save game stats.")
+                }
+        }
+
+
+    fun loadGameStats() {
+        val myDB = Firebase.firestore
+        val userId = auth.currentUser?.uid
+        _gameStatsList.value = emptyList()
+        _loading.value = true
+        if (userId != null) {
+            myDB.collection("players")
+                .document(userId)
+                .collection("gamestats")
+                .get()
+                .addOnSuccessListener { documents ->
+                    documents.forEach { x ->
+                        try {
+                            val gameStats = x.toObject(GameStats::class.java)
+                            if (gameStats != null) {
+                                val currentList = _gameStatsList.value ?: emptyList()
+                                _gameStatsList.value = currentList + gameStats
+                            }
+                        } catch (e: Exception) {
+                            println("Error converting document: ${x.id}, ${e.message}")
+                        }
+                        _loading.value = false
+                    }
+                    _gameStatsList.value = _gameStatsList.value?.sortedByDescending { it.date }
+                }
+                .addOnFailureListener { e ->
+                    println("Error loading game stats: ${e.message}")
+                }
+        }
+    }
+```
