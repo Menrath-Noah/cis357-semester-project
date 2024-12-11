@@ -283,6 +283,7 @@ import javax.microedition.khronos.egl.EGLConfig
 import javax.microedition.khronos.opengles.GL10
 ```
 #### MyGLSurfaceView:
+Create the MyGLSurfaceView which initializes the MyGLRenderer class:
 ```kotlin
 class MyGLSurfaceView(context: Context) : GLSurfaceView(context) {
 
@@ -305,6 +306,7 @@ class MyGLSurfaceView(context: Context) : GLSurfaceView(context) {
 ```
 ---
 #### MyGLRenderer class:
+onSurfaceCreated will create your GL environment:
 ```kotlin
 class MyGLRenderer : GLSurfaceView.Renderer {
     override fun onSurfaceCreated(unused: GL10, config: EGLConfig) {
@@ -336,6 +338,9 @@ class MyGLRenderer : GLSurfaceView.Renderer {
             }
         }
     }
+```
+> 'onDrawFrame' will constantly update the game frames. This contains your game logic. You can see in the code above, it uses the motion sensor data to control player movement.
+```kotlin
     override fun onSurfaceChanged(unused: GL10, width: Int, height: Int) {
         GLES20.glViewport(0, 0, width, height)
         GLES20.glViewport(0, 0, width, height)
@@ -438,3 +443,39 @@ menrathn@mail.gvsu.edu
 
 We're always here to help! Keep developing and good luck with Cubeshake!
 
+
+```kotlin
+if (death.value == false) {
+            val square3 = blocksArr.find { it is Square3 } as Square3
+            for (block in blocksArr) {
+                when (block) {
+                    is Square2 -> {
+                        if (square3.blockColor != "transparent") {
+                            if (block.zVal <= 0.0) {
+                                if (block.xVal != null) {
+//                                    if (camX >= (block.xVal!! - .35) && camX <= (block.xVal!! + .35)) {
+                                    if (Math.abs(camX - block.xVal!!) <= 0.36) {
+                                        if (-0.55 + camY <= block.heightVal) {
+//                                            var rando = Random.nextInt(20)
+//                                            println(rando)
+                                            _death.postValue(true)
+                                            val currentTime = SystemClock.uptimeMillis()
+                                            _score.postValue((currentTime - gameStartTime) / 100)
+                                            _deathCounter.postValue(_deathCounter.value?.plus(1) ?: 1)
+                                            break
+                                        }
+
+                                    }
+                                }
+                            }
+                        }
+
+                    }
+
+                    is Triangle -> {
+                        println("Triangle")
+                    }
+                }
+            }
+        }
+```
