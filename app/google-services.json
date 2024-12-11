@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "47119301610",
+    "project_id": "cubeshake-d4032",
+    "storage_bucket": "cubeshake-d4032.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:47119301610:android:40eb5346ba3019645b1093",
+        "android_client_info": {
+          "package_name": "com.example.prototype_semesterproject"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCR7caFTFc3mXp0sTMe0ovfS_nFlkyt5M0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
