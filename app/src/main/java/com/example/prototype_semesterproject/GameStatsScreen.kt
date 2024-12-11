@@ -1,6 +1,7 @@
 package com.example.prototype_semesterproject
 
 import android.annotation.SuppressLint
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -48,7 +49,10 @@ fun GameStatsScreen(userId: String, vm:MyGLRenderer, navController:NavController
     }
 
     Column(
-        modifier = Modifier.fillMaxSize().padding(16.dp),
+        modifier = Modifier
+            .fillMaxSize()
+            .background(color = Color(236,243,91))
+            .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text("Game Statistics", fontSize = 30.sp, style = MaterialTheme.typography.titleLarge)

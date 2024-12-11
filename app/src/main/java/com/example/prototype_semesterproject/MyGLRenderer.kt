@@ -106,6 +106,8 @@ class MyGLRenderer : GLSurfaceView.Renderer {
         blockCoords.add(randX)
         blocksArr.add(Square3())
         gameStartTime = SystemClock.uptimeMillis()
+        GLES20.glClearColor(220F, 180F, 255F, 1.0f)
+
 //            var randRTX = Random.nextDouble(-5.0,5.0)
 //            var newBlockRT = Square2(randRTX, "pink")
 //            rotatingBlocksArr.add(newBlockRT)
@@ -116,11 +118,12 @@ class MyGLRenderer : GLSurfaceView.Renderer {
         var randR = Random.nextFloat()
         var randG = Random.nextFloat()
         var randB = Random.nextFloat()
-        GLES20.glClearColor(randR, randG, randB, 1.0f)
+//        GLES20.glClearColor(randR, randG, randB, 1.0f)
     }
 
     @RequiresApi(35)
     override fun onDrawFrame(unused: GL10?) {
+        GLES20.glClearColor(220/255F, 180/255F, 255/255F, 1.0f)
         var randLength: Double
         var randWidth: Double
         if (_death.value == true) {
@@ -130,6 +133,7 @@ class MyGLRenderer : GLSurfaceView.Renderer {
             //   _death.postValue(false)
         }
         GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT)
+
         Matrix.setLookAtM(
             viewMatrix,
             0,

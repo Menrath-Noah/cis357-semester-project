@@ -1,6 +1,8 @@
 package com.example.prototype_semesterproject
 
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -18,6 +20,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -39,14 +42,19 @@ fun Login(
     Column(
         modifier = modifier
             .fillMaxSize()
+            .background(color = Color(236,243,91))
             .padding(horizontal = 16.dp)
             .padding(top = 24.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
+        horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Text(
             "Welcome to Cubeshake",
-            fontSize = 30.sp,
-            modifier = Modifier.padding(bottom = 16.dp)
+            fontSize = 32.sp,
+            modifier = Modifier
+                .padding(bottom = 16.dp)
+                .align(Alignment.CenterHorizontally)
+
+            ,
         )
 
         OutlinedTextField(
@@ -119,8 +127,10 @@ fun CreateAccount(
     Column(
         modifier = modifier
             .fillMaxSize()
+            .background(color = Color(236,243,91))
             .padding(horizontal = 16.dp)
             .padding(top = 24.dp),
+
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         OutlinedTextField(
